@@ -176,6 +176,12 @@ test('always-pack items go to planned on a new trip, others to not packed', () =
   assert.equal(list.categories[1].items[0].name, 'tee');
 });
 
+test('setAllCollapsed folds and unfolds every category', () => {
+  const folded = m.setAllCollapsed(fixture(), true);
+  assert.ok(folded.categories.every((c) => c.collapsed));
+  assert.ok(m.setAllCollapsed(folded, false).categories.every((c) => !c.collapsed));
+});
+
 test('countStatuses counts packed and active (anything but not_packed), ignoring tombstones', () => {
   const { packed, active } = m.countStatuses(fixture().categories[1]);
   assert.equal(packed, 1);

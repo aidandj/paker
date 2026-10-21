@@ -118,6 +118,10 @@ export function toggleCollapsed(list: PackingList, id: string): PackingList {
   return mapCategory(list, id, (c) => ({ ...c, collapsed: !c.collapsed }));
 }
 
+export function setAllCollapsed(list: PackingList, collapsed: boolean): PackingList {
+  return { ...list, categories: list.categories.map((c) => (c.collapsed === collapsed ? c : { ...c, collapsed })) };
+}
+
 export function toggleAlwaysPack(list: PackingList, id: string): PackingList {
   return mapCategory(list, id, (c) => ({ ...c, alwaysPack: !c.alwaysPack, updatedAt: now() }));
 }

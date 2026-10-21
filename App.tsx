@@ -108,6 +108,13 @@ function Main() {
       <StatusBar style="dark" />
       <View style={styles.topBar}>
         <Text style={styles.appTitle}>Paker</Text>
+        <Pressable onPress={() => update((l) => m.setAllCollapsed(l, true))} style={styles.foldButton} hitSlop={6} accessibilityLabel="Collapse all">
+          <Text style={styles.foldText}>▸</Text>
+        </Pressable>
+        <Pressable onPress={() => update((l) => m.setAllCollapsed(l, false))} style={styles.foldButton} hitSlop={6} accessibilityLabel="Expand all">
+          <Text style={styles.foldText}>▾</Text>
+        </Pressable>
+        <View style={{ flex: 1 }} />
         <View style={styles.topButtons}>
           <Pressable onPress={() => setSettingsOpen(true)} style={styles.topButton}>
             <View style={[styles.syncDot, { backgroundColor: SYNC_DOT[sync.status] }]} />
@@ -230,8 +237,10 @@ function Main() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#F5F6F8' },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  topBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, height: 52, backgroundColor: 'white', borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#CCC' },
-  appTitle: { fontSize: 22, fontWeight: '700' },
+  topBar: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, height: 52, backgroundColor: 'white', borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#CCC' },
+  appTitle: { fontSize: 22, fontWeight: '700', marginRight: 10 },
+  foldButton: { width: 30, height: 30, borderRadius: 15, backgroundColor: '#EEF1F5', alignItems: 'center', justifyContent: 'center', marginRight: 6 },
+  foldText: { fontSize: 15, color: '#555' },
   topButtons: { flexDirection: 'row' },
   topButton: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8, paddingHorizontal: 12 },
   syncDot: { width: 10, height: 10, borderRadius: 5, marginRight: 6 },
