@@ -18,6 +18,7 @@ RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o /paker .
 
 # 3. Minimal runtime image: the binary and the web build
 FROM scratch
+LABEL org.opencontainers.image.source="https://github.com/aidandj/paker"
 COPY --from=build /paker /paker
 COPY --from=web /app/dist /web
 VOLUME /data

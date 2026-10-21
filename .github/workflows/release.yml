@@ -1,0 +1,152 @@
+# On every push to main: bump the semver tag, build the Docker image (multi-arch -> GHCR),
+# the Android APK and an unsigned iOS .ipa, then publish a GitHub release with the files attached.
+name: release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  packages: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+env:
+  IMAGE: ghcr.io/${{ github.repository }}
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.semver.outputs.new_tag }}
+      version: ${{ steps.semver.outputs.new_version }}
+      changelog: ${{ steps.semver.outputs.changelog }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # Computes the next tag from conventional commits (feat: minor, fix:/other: patch, BREAKING CHANGE: major).
+      # dry_run: the tag itself is created at the end, after the builds succeed.
+      - id: semver
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          default_bump: patch
+          dry_run: true
+
+  docker:
+    needs: version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE }}
+          tags: |
+            type=raw,value=latest
+            type=raw,value=${{ needs.version.outputs.tag }}
+            type=raw,value=${{ needs.version.outputs.version }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: server/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  android:
+    needs: version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: android-actions/setup-android@v3
+      - run: npm ci
+      - name: Stamp version into app.json
+        run: node scripts/set-version.js "${{ needs.version.outputs.version }}" "${{ github.run_number }}"
+      - run: npx expo prebuild --platform android --no-install
+        env:
+          CI: 1
+      - run: ./gradlew assembleRelease --no-daemon
+        working-directory: android
+      - run: cp android/app/build/outputs/apk/release/app-release.apk paker-${{ needs.version.outputs.version }}.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: paker-*.apk
+
+  ios:
+    needs: version
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Stamp version into app.json
+        run: node scripts/set-version.js "${{ needs.version.outputs.version }}" "${{ github.run_number }}"
+      - run: npx expo prebuild --platform ios
+        env:
+          CI: 1
+      # Unsigned build: no Apple certificates in CI. Sign it yourself (Sideloadly, AltStore, Xcode) to install.
+      - run: |
+          xcodebuild -workspace ios/paker.xcworkspace -scheme paker -configuration Release -sdk iphoneos \
+            -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build | tail -20
+          mkdir Payload && cp -r build/Build/Products/Release-iphoneos/paker.app Payload/
+          zip -qr paker-${{ needs.version.outputs.version }}-unsigned.ipa Payload
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ipa
+          path: paker-*.ipa
+
+  release:
+    needs: [version, docker, android, ios]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Create tag
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          custom_tag: ${{ needs.version.outputs.version }}
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.version.outputs.tag }}
+          name: ${{ needs.version.outputs.tag }}
+          body: |
+            ${{ needs.version.outputs.changelog }}
+
+            Docker image: `${{ env.IMAGE }}:${{ needs.version.outputs.tag }}` (also `:latest`)
+            The APK is signed with the debug key (fine for sideloading). The .ipa is unsigned.
+          files: |
+            dist/*.apk
+            dist/*.ipa

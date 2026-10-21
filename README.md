@@ -65,10 +65,19 @@ Put it behind your reverse proxy with TLS. Then open `https://your-host/` in a b
 app, or point the phone app at that URL.
 
 A multi-arch image (amd64, arm64) is published at `ghcr.io/aidandj/paker:latest`; the compose file
-pulls it, so hosts never need to build. Publish a new one from this directory with:
+pulls it, so hosts never need to build.
+
+## Releases
+
+Every push to `main` runs [.github/workflows/release.yml](.github/workflows/release.yml): it computes
+the next version from the commit messages (`feat:` minor, anything else patch, `BREAKING CHANGE` major),
+builds the Docker image (pushed to GHCR as `latest` and `vX.Y.Z`), the Android APK and an unsigned
+iOS .ipa, then tags the commit and publishes a GitHub release with the APK and .ipa attached.
+The APK is signed with the debug key, fine for sideloading. Local equivalents:
 
 ```sh
 docker buildx build --platform linux/amd64,linux/arm64 -f server/Dockerfile -t ghcr.io/aidandj/paker:latest --push .
+npx expo prebuild --platform android && (cd android && ./gradlew assembleRelease)   # android/app/build/outputs/apk/release/
 ```
 
 [deploy/nas/](deploy/nas/) holds the Synology/SWAG setup actually used for paker.aidandj.com:
