@@ -21,6 +21,9 @@ FROM scratch
 LABEL org.opencontainers.image.source="https://github.com/aidandj/paker"
 COPY --from=build /paker /paker
 COPY --from=web /app/dist /web
+# App icon for the SideStore source, plus whatever CI drops in web-extra/ (altstore.json and the .ipa)
+COPY assets/icon.png /web/icon.png
+COPY web-extra/ /web/
 VOLUME /data
 EXPOSE 8080 9090
 ENTRYPOINT ["/paker"]

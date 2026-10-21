@@ -1,0 +1,16 @@
+# Self-hosted anisette server for SideStore (signs apps on the phone itself, from anywhere).
+# Lives in /volume2/docker-composes/anisette on the NAS; SWAG proxies anisette.aidandj.com -> :6969.
+version: "3.8"
+
+services:
+  anisette:
+    image: dadoum/anisette-v3-server:latest
+    container_name: anisette
+    restart: unless-stopped
+    ports:
+      - "6969:6969"
+    volumes:
+      - anisette-data:/home/Alcoholic/.config/anisette-v3
+
+volumes:
+  anisette-data:

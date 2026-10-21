@@ -91,6 +91,21 @@ Moving to a cloud function later: `internal/paker.Service` is plain gRPC, the HT
 `http.Handler`, and storage is a two-method `Store` interface. Wrap the handler with a Lambda adapter
 and give `Service` an S3-backed `Store`.
 
+## Installing on iPhone (SideStore)
+
+There is no App Store listing. The release workflow produces an unsigned .ipa which the phone signs
+itself with your Apple ID through [SideStore](https://sidestore.io). One-time setup:
+
+1. Install SideStore on the phone following its docs (needs a computer once, to pair).
+2. In SideStore settings, set the anisette server to `https://anisette.aidandj.com` (self-hosted,
+   see [deploy/nas/anisette/](deploy/nas/anisette/)).
+3. Add the source `https://paker.aidandj.com/altstore.json`. Paker appears with Install, and later
+   Update whenever a release is published. Free Apple IDs: 3 apps max, refreshed every 7 days
+   automatically by SideStore.
+
+The Docker image serves `altstore.json`, the `.ipa` and `icon.png` next to the web app, so none of
+this depends on the GitHub repo being public.
+
 ## Layout
 
 ```
