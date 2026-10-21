@@ -23,6 +23,16 @@ message Item {
   int64 updated_at = 4;
   // Tombstone: deleted items stay in the list so the delete reaches every device.
   bool deleted = 5;
+  // Present only for counted items.
+  Quantity quantity = 6;
+}
+
+// Counts for an item that is packed in multiples.
+message Quantity {
+  // How many to bring. 0 means the item is not on this trip.
+  int32 needed = 1;
+  // How many are in the bag.
+  int32 packed = 2;
 }
 
 message Category {

@@ -17,6 +17,7 @@ interface Props {
   onDelete: () => void;
   onTapItem: (itemId: string) => void;
   onLongPressItem: (itemId: string) => void;
+  onAdjustItem: (itemId: string, delta: number) => void;
   onToggleItem: (itemId: string) => void;
   onSetItemStatus: (itemId: string, status: Status) => void;
   onRenameItem: (itemId: string) => void;
@@ -67,11 +68,13 @@ export function CategorySection(p: Props) {
           <ItemRow
             key={item.id}
             item={item}
+            mode={mode}
             expanded={item.id === p.expandedItemId}
             selecting={p.selectedIds.length > 0}
             selected={p.selectedIds.includes(item.id)}
             onTap={() => p.onTapItem(item.id)}
             onLongPress={() => p.onLongPressItem(item.id)}
+            onAdjust={(delta) => p.onAdjustItem(item.id, delta)}
             onToggleExpand={() => p.onToggleItem(item.id)}
             onSetStatus={(s) => p.onSetItemStatus(item.id, s)}
             onRename={() => p.onRenameItem(item.id)}

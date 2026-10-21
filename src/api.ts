@@ -40,6 +40,7 @@ export function toProto(list: PackingList): PbPackingList {
         status: toPbStatus[i.status],
         updatedAt: BigInt(i.updatedAt),
         deleted: !!i.deleted,
+        quantity: i.quantity,
       })),
     })),
   });
@@ -62,6 +63,7 @@ export function fromProto(pb: PbPackingList | undefined, local: PackingList): Pa
         status: fromPbStatus(i.status),
         updatedAt: Number(i.updatedAt),
         deleted: i.deleted || undefined,
+        ...(i.quantity ? { quantity: { needed: i.quantity.needed, packed: i.quantity.packed } } : {}),
       }),
     ),
   }));

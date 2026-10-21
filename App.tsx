@@ -79,8 +79,8 @@ function Main() {
       ],
     });
 
-  const findItemName = (itemId: string) =>
-    list.categories.flatMap((c) => c.items).find((i) => i.id === itemId)?.name ?? '';
+  const findItem = (itemId: string) => list.categories.flatMap((c) => c.items).find((i) => i.id === itemId);
+  const findItemName = (itemId: string) => findItem(itemId)?.name ?? '';
 
   const confirmDelete = (what: string, onConfirm: () => void) =>
     setChoice({
@@ -166,7 +166,8 @@ function Main() {
             onAddItem={() =>
               setNameRequest({
                 title: `Add item to ${c.name}`,
-                onSubmit: (name) => update((l) => m.addItem(l, c.id, name)),
+                quantity: false,
+                onSubmit: (name, quantity) => update((l) => m.addItem(l, c.id, name, quantity)),
               })
             }
             onRename={() =>
@@ -179,6 +180,9 @@ function Main() {
             onToggleAlwaysPack={() => update((l) => m.toggleAlwaysPack(l, c.id))}
             onDelete={() => confirmDelete(`"${c.name}" and its items`, () => update((l) => m.deleteCategory(l, c.id)))}
             onTapItem={(itemId) => (selectedIds.length > 0 ? toggleSelected(itemId) : update((l) => m.tapItem(l, itemId)))}
+            onAdjustItem={(itemId, delta) =>
+              update((l) => (l.mode === 'planning' ? m.adjustNeeded(l, itemId, delta) : m.adjustPacked(l, itemId, delta)))
+            }
             onLongPressItem={(itemId) => {
               setExpandedItemId(null);
               toggleSelected(itemId);
@@ -190,9 +194,11 @@ function Main() {
             }}
             onRenameItem={(itemId) =>
               setNameRequest({
-                title: 'Rename item',
+                title: 'Edit item',
                 initial: findItemName(itemId),
-                onSubmit: (name) => update((l) => m.renameItem(l, itemId, name)),
+                quantity: m.hasQuantity(findItem(itemId)!),
+                onSubmit: (name, quantity) =>
+                  update((l) => m.setItemQuantity(m.renameItem(l, itemId, name), itemId, quantity)),
               })
             }
             onDeleteItem={(itemId) => confirmDelete(`"${findItemName(itemId)}"`, () => update((l) => m.deleteItem(l, itemId)))}

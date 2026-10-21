@@ -1,8 +1,9 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Item, Status, STATUS_COLOR, STATUS_LABEL, STATUSES } from '../types';
+import { Item, Mode, Status, STATUS_COLOR, STATUS_LABEL, STATUSES } from '../types';
 
 interface Props {
   item: Item;
+  mode: Mode;
   expanded: boolean;
   /** Multi-select mode (entered by press-and-hold): taps toggle selection instead of state. */
   selecting: boolean;
@@ -10,6 +11,8 @@ interface Props {
   /** One-tap state change (depends on the current mode). */
   onTap: () => void;
   onLongPress: () => void;
+  /** Quantity items: +1 / -1 on needed (planning) or packed (packing). */
+  onAdjust: (delta: number) => void;
   onToggleExpand: () => void;
   onSetStatus: (status: Status) => void;
   onRename: () => void;
@@ -20,8 +23,9 @@ interface Props {
  * One item. Tap the row to move it to the next state for the current mode.
  * Tap the status pill to expand all four state buttons plus rename / delete.
  */
-export function ItemRow({ item, expanded, selecting, selected, onTap, onLongPress, onToggleExpand, onSetStatus, onRename, onDelete }: Props) {
+export function ItemRow({ item, mode, expanded, selecting, selected, onTap, onLongPress, onAdjust, onToggleExpand, onSetStatus, onRename, onDelete }: Props) {
   const color = STATUS_COLOR[item.status];
+  const q = item.quantity;
   return (
     <View style={styles.wrap}>
       <Pressable
@@ -35,6 +39,19 @@ export function ItemRow({ item, expanded, selecting, selected, onTap, onLongPres
         <Text style={styles.name} numberOfLines={1}>
           {item.name}
         </Text>
+        {q && !selecting && (
+          <View style={styles.qty}>
+            <Pressable onPress={() => onAdjust(-1)} hitSlop={8} style={styles.qtyButton}>
+              <Text style={styles.qtyButtonText}>−</Text>
+            </Pressable>
+            <Text style={[styles.qtyNum, mode === 'planning' && styles.qtyActive]}>{q.needed}</Text>
+            <Text style={styles.qtySep}>|</Text>
+            <Text style={[styles.qtyNum, mode === 'packing' && styles.qtyActive]}>{q.packed}</Text>
+            <Pressable onPress={() => onAdjust(1)} hitSlop={8} style={styles.qtyButton}>
+              <Text style={styles.qtyButtonText}>+</Text>
+            </Pressable>
+          </View>
+        )}
         <Pressable onPress={selecting ? onTap : onToggleExpand} hitSlop={8} style={[styles.pill, { backgroundColor: color }]}>
           <Text style={styles.pillText}>{STATUS_LABEL[item.status]}{selecting ? '' : ' ▾'}</Text>
         </Pressable>
@@ -58,7 +75,7 @@ export function ItemRow({ item, expanded, selecting, selected, onTap, onLongPres
           </View>
           <View style={styles.editRow}>
             <Pressable onPress={onRename} style={styles.editButton}>
-              <Text style={styles.editText}>Rename</Text>
+              <Text style={styles.editText}>Edit</Text>
             </Pressable>
             <Pressable onPress={onDelete} style={styles.editButton}>
               <Text style={[styles.editText, styles.deleteText]}>Delete</Text>
@@ -80,6 +97,12 @@ const styles = StyleSheet.create({
   bar: { width: 6, alignSelf: 'stretch' },
   name: { flex: 1, fontSize: 16, paddingHorizontal: 12 },
   pill: { borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4, marginRight: 12 },
+  qty: { flexDirection: 'row', alignItems: 'center', marginRight: 8 },
+  qtyButton: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#EEF1F5', alignItems: 'center', justifyContent: 'center' },
+  qtyButtonText: { fontSize: 20, color: '#333', lineHeight: 24 },
+  qtyNum: { fontSize: 16, color: '#999', minWidth: 22, textAlign: 'center' },
+  qtyActive: { color: '#111', fontWeight: '700' },
+  qtySep: { fontSize: 16, color: '#CCC' },
   pillText: { color: 'white', fontSize: 12, fontWeight: '600' },
   actions: { paddingHorizontal: 12, paddingBottom: 10, backgroundColor: '#FAFAFA' },
   statusRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingTop: 8 },

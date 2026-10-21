@@ -119,6 +119,51 @@ test('packing mode hides not-packed items; new items there start as planned', ()
   assert.equal(list.categories[1].items.at(-1)!.status, 'planned');
 });
 
+test('quantity items: needed drives planning, packed drives packing, resets zero both', () => {
+  let list = m.addItem(fixture(), 'clothes', 'Shirts', true);
+  const id = list.categories[1].items.at(-1)!.id;
+  const item = (l: PackingList) => l.categories[1].items.find((i) => i.id === id)!;
+  assert.deepEqual(item(list).quantity, { needed: 0, packed: 0 });
+  assert.equal(item(list).status, 'not_packed');
+
+  list = m.adjustNeeded(list, id, 1);
+  list = m.adjustNeeded(list, id, 1);
+  list = m.adjustNeeded(list, id, 1);
+  assert.deepEqual(item(list).quantity, { needed: 3, packed: 0 });
+  assert.equal(item(list).status, 'planned');
+
+  list = m.adjustPacked(list, id, 1);
+  assert.deepEqual(item(list).quantity, { needed: 3, packed: 1 });
+  assert.equal(item(list).status, 'planned');
+  list = m.adjustPacked(list, id, 5); // clamped to needed
+  assert.deepEqual(item(list).quantity, { needed: 3, packed: 3 });
+  assert.equal(item(list).status, 'packed');
+
+  list = m.adjustNeeded(list, id, 1); // need one more -> no longer fully packed
+  assert.equal(item(list).status, 'planned');
+  assert.deepEqual(item(list).quantity, { needed: 4, packed: 3 });
+
+  list = m.unpackAll(m.adjustPacked(list, id, 1));
+  assert.deepEqual(item(list).quantity, { needed: 4, packed: 0 });
+
+  list = m.startNewTrip(list);
+  assert.deepEqual(item(list).quantity, { needed: 0, packed: 0 });
+  assert.equal(item(list).status, 'not_packed');
+
+  list = m.adjustNeeded(list, id, -1); // never below 0
+  assert.deepEqual(item(list).quantity, { needed: 0, packed: 0 });
+
+  // tapping a counted item behaves like the plain toggle, keeping counts consistent
+  list = m.tapItem(list, id); // planning: on
+  assert.deepEqual(item(list).quantity, { needed: 1, packed: 0 });
+  list = m.tapItem(m.setMode(list, 'packing'), id); // packing: fill
+  assert.deepEqual(item(list).quantity, { needed: 1, packed: 1 });
+  assert.equal(item(list).status, 'packed');
+
+  list = m.setItemQuantity(list, id, false);
+  assert.equal(item(list).quantity, undefined);
+});
+
 test('countStatuses counts packed and active (anything but not_packed), ignoring tombstones', () => {
   const { packed, active } = m.countStatuses(fixture().categories[1]);
   assert.equal(packed, 1);

@@ -40,8 +40,63 @@ export function nextStatusOnTap(status: Status, mode: Mode): Status {
 
 export function tapItem(list: PackingList, itemId: string): PackingList {
   return mapItems(list, (i) =>
-    i.id === itemId ? { ...i, status: nextStatusOnTap(i.status, list.mode), updatedAt: now() } : i,
+    i.id === itemId ? withQuantityFor({ ...i, status: nextStatusOnTap(i.status, list.mode), updatedAt: now() }) : i,
   );
+}
+
+// --- quantities ---
+
+export const hasQuantity = (i: Item) => i.quantity !== undefined;
+
+/** After a status change, keep the counts of a counted item in step with it. */
+function withQuantityFor(i: Item): Item {
+  if (!i.quantity) return i;
+  const needed = Math.max(1, i.quantity.needed);
+  switch (i.status) {
+    case 'not_packed':
+      return { ...i, quantity: { needed: 0, packed: 0 } };
+    case 'planned':
+      return { ...i, quantity: { needed, packed: 0 } };
+    case 'packed':
+      return { ...i, quantity: { needed, packed: needed } };
+    default:
+      return i;
+  }
+}
+
+/** Turn counting on or off for an item. */
+export function setItemQuantity(list: PackingList, itemId: string, on: boolean): PackingList {
+  return mapItems(list, (i) => {
+    if (i.id !== itemId || hasQuantity(i) === on) return i;
+    if (!on) {
+      const { quantity: _q, ...rest } = i;
+      return { ...rest, updatedAt: now() };
+    }
+    return withQuantityFor({ ...i, quantity: { needed: 0, packed: 0 }, updatedAt: now() });
+  });
+}
+
+/** Planning mode: change how many are needed. 0 means the item is not on this trip. */
+export function adjustNeeded(list: PackingList, itemId: string, delta: number): PackingList {
+  return mapItems(list, (i) => {
+    if (i.id !== itemId || !i.quantity) return i;
+    const needed = Math.max(0, i.quantity.needed + delta);
+    const packed = Math.min(i.quantity.packed, needed);
+    const status: Status =
+      needed === 0 ? 'not_packed' : i.status === 'needs_refill' ? 'needs_refill' : packed >= needed ? 'packed' : 'planned';
+    return { ...i, quantity: { needed, packed }, status, updatedAt: now() };
+  });
+}
+
+/** Packing mode: change how many are in the bag (0 to needed). */
+export function adjustPacked(list: PackingList, itemId: string, delta: number): PackingList {
+  return mapItems(list, (i) => {
+    if (i.id !== itemId || !i.quantity) return i;
+    const needed = Math.max(1, i.quantity.needed);
+    const packed = Math.min(needed, Math.max(0, i.quantity.packed + delta));
+    const status: Status = packed >= needed ? 'packed' : 'planned';
+    return { ...i, quantity: { needed, packed }, status, updatedAt: now() };
+  });
 }
 
 // --- categories ---
@@ -70,8 +125,9 @@ export function toggleAlwaysPack(list: PackingList, id: string): PackingList {
 // --- items ---
 
 /** New items start as "Not packed" in planning mode and "Plan to pack" in packing mode, so they stay visible. */
-export function addItem(list: PackingList, categoryId: string, name: string): PackingList {
-  const item: Item = { id: newId(), name, status: list.mode === 'packing' ? 'planned' : 'not_packed', updatedAt: now() };
+export function addItem(list: PackingList, categoryId: string, name: string, quantity = false): PackingList {
+  const base: Item = { id: newId(), name, status: list.mode === 'packing' ? 'planned' : 'not_packed', updatedAt: now() };
+  const item = quantity ? withQuantityFor({ ...base, quantity: { needed: 0, packed: 0 } }) : base;
   return mapCategory(list, categoryId, (c) => ({ ...c, items: [...c.items, item] }));
 }
 
@@ -89,11 +145,12 @@ export function deleteItems(list: PackingList, itemIds: string[]): PackingList {
 }
 
 export function setItemStatus(list: PackingList, itemId: string, status: Status): PackingList {
-  return mapItems(list, (i) => (i.id === itemId && i.status !== status ? { ...i, status, updatedAt: now() } : i));
+  return mapItems(list, (i) => (i.id === itemId ? withStatus(i, status) : i));
 }
 
 /** Change an item's status only if it differs, so untouched items keep their timestamp. */
-const withStatus = (i: Item, status: Status): Item => (i.status === status ? i : { ...i, status, updatedAt: now() });
+const withStatus = (i: Item, status: Status): Item =>
+  i.status === status ? i : withQuantityFor({ ...i, status, updatedAt: now() });
 
 // --- resets ---
 

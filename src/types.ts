@@ -28,6 +28,13 @@ export interface Item {
   status: Status;
   updatedAt: number;
   deleted?: boolean;
+  /** Present only for counted items: needed is how many to bring (0 = not on this trip), packed how many are in the bag. */
+  quantity?: Quantity;
+}
+
+export interface Quantity {
+  needed: number;
+  packed: number;
 }
 
 export interface Category {

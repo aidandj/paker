@@ -50,7 +50,8 @@ func main() {
 
 	// HTTP: JSON API via grpc-gateway (calls the service directly, no loopback), plus the web app.
 	gw := runtime.NewServeMux(runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
-		MarshalOptions: protojson.MarshalOptions{EmitUnpopulated: true},
+		MarshalOptions:   protojson.MarshalOptions{EmitUnpopulated: true},
+		UnmarshalOptions: protojson.UnmarshalOptions{DiscardUnknown: true}, // newer apps against an older server
 	}))
 	if err := pakerv1.RegisterPakerServiceHandlerServer(context.Background(), gw, svc); err != nil {
 		log.Fatal(err)
@@ -74,6 +75,10 @@ func spa(dir string) http.Handler {
 			return
 		}
 		if _, err := os.Stat(filepath.Join(dir, filepath.Clean(r.URL.Path))); err != nil {
+			if filepath.Ext(r.URL.Path) != "" { // a missing file (altstore.json, x.ipa) is a 404, not the app page
+				http.NotFound(w, r)
+				return
+			}
 			r.URL.Path = "/"
 		}
 		files.ServeHTTP(w, r)

@@ -11,7 +11,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file paker/v1/paker.proto.
  */
 export const file_paker_v1_paker: GenFile = /*@__PURE__*/
-  fileDesc("ChRwYWtlci92MS9wYWtlci5wcm90bxIIcGFrZXIudjEiZwoESXRlbRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEiAKBnN0YXR1cxgDIAEoDjIQLnBha2VyLnYxLlN0YXR1cxISCgp1cGRhdGVkX2F0GAQgASgDEg8KB2RlbGV0ZWQYBSABKAgifQoIQ2F0ZWdvcnkSCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCRITCgthbHdheXNfcGFjaxgDIAEoCBISCgp1cGRhdGVkX2F0GAQgASgDEg8KB2RlbGV0ZWQYBSABKAgSHQoFaXRlbXMYBiADKAsyDi5wYWtlci52MS5JdGVtIjUKC1BhY2tpbmdMaXN0EiYKCmNhdGVnb3JpZXMYASADKAsyEi5wYWtlci52MS5DYXRlZ29yeSIQCg5HZXRMaXN0UmVxdWVzdCI2Cg9HZXRMaXN0UmVzcG9uc2USIwoEbGlzdBgBIAEoCzIVLnBha2VyLnYxLlBhY2tpbmdMaXN0IjYKD1N5bmNMaXN0UmVxdWVzdBIjCgRsaXN0GAEgASgLMhUucGFrZXIudjEuUGFja2luZ0xpc3QiNwoQU3luY0xpc3RSZXNwb25zZRIjCgRsaXN0GAEgASgLMhUucGFrZXIudjEuUGFja2luZ0xpc3QqdwoGU3RhdHVzEhYKElNUQVRVU19VTlNQRUNJRklFRBAAEhUKEVNUQVRVU19OT1RfUEFDS0VEEAESEgoOU1RBVFVTX1BMQU5ORUQQAhIRCg1TVEFUVVNfUEFDS0VEEAMSFwoTU1RBVFVTX05FRURTX1JFRklMTBAEMsUBCgxQYWtlclNlcnZpY2USVAoHR2V0TGlzdBIYLnBha2VyLnYxLkdldExpc3RSZXF1ZXN0GhkucGFrZXIudjEuR2V0TGlzdFJlc3BvbnNlIhSC0+STAg4SDC9hcGkvdjEvbGlzdBJfCghTeW5jTGlzdBIZLnBha2VyLnYxLlN5bmNMaXN0UmVxdWVzdBoaLnBha2VyLnYxLlN5bmNMaXN0UmVzcG9uc2UiHILT5JMCFjoBKiIRL2FwaS92MS9saXN0OnN5bmNCfgoMY29tLnBha2VyLnYxQgpQYWtlclByb3RvUAFaIXBha2VyL3NlcnZlci9nZW4vcGFrZXIvdjE7cGFrZXJ2MaICA1BYWKoCCFBha2VyLlYxygIIUGFrZXJcVjHiAhRQYWtlclxWMVxHUEJNZXRhZGF0YeoCCVBha2VyOjpWMWIGcHJvdG8z", [file_google_api_annotations]);
+  fileDesc("ChRwYWtlci92MS9wYWtlci5wcm90bxIIcGFrZXIudjEijQEKBEl0ZW0SCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCRIgCgZzdGF0dXMYAyABKA4yEC5wYWtlci52MS5TdGF0dXMSEgoKdXBkYXRlZF9hdBgEIAEoAxIPCgdkZWxldGVkGAUgASgIEiQKCHF1YW50aXR5GAYgASgLMhIucGFrZXIudjEuUXVhbnRpdHkiKgoIUXVhbnRpdHkSDgoGbmVlZGVkGAEgASgFEg4KBnBhY2tlZBgCIAEoBSJ9CghDYXRlZ29yeRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEhMKC2Fsd2F5c19wYWNrGAMgASgIEhIKCnVwZGF0ZWRfYXQYBCABKAMSDwoHZGVsZXRlZBgFIAEoCBIdCgVpdGVtcxgGIAMoCzIOLnBha2VyLnYxLkl0ZW0iNQoLUGFja2luZ0xpc3QSJgoKY2F0ZWdvcmllcxgBIAMoCzISLnBha2VyLnYxLkNhdGVnb3J5IhAKDkdldExpc3RSZXF1ZXN0IjYKD0dldExpc3RSZXNwb25zZRIjCgRsaXN0GAEgASgLMhUucGFrZXIudjEuUGFja2luZ0xpc3QiNgoPU3luY0xpc3RSZXF1ZXN0EiMKBGxpc3QYASABKAsyFS5wYWtlci52MS5QYWNraW5nTGlzdCI3ChBTeW5jTGlzdFJlc3BvbnNlEiMKBGxpc3QYASABKAsyFS5wYWtlci52MS5QYWNraW5nTGlzdCp3CgZTdGF0dXMSFgoSU1RBVFVTX1VOU1BFQ0lGSUVEEAASFQoRU1RBVFVTX05PVF9QQUNLRUQQARISCg5TVEFUVVNfUExBTk5FRBACEhEKDVNUQVRVU19QQUNLRUQQAxIXChNTVEFUVVNfTkVFRFNfUkVGSUxMEAQyxQEKDFBha2VyU2VydmljZRJUCgdHZXRMaXN0EhgucGFrZXIudjEuR2V0TGlzdFJlcXVlc3QaGS5wYWtlci52MS5HZXRMaXN0UmVzcG9uc2UiFILT5JMCDhIML2FwaS92MS9saXN0El8KCFN5bmNMaXN0EhkucGFrZXIudjEuU3luY0xpc3RSZXF1ZXN0GhoucGFrZXIudjEuU3luY0xpc3RSZXNwb25zZSIcgtPkkwIWOgEqIhEvYXBpL3YxL2xpc3Q6c3luY0J+Cgxjb20ucGFrZXIudjFCClBha2VyUHJvdG9QAVohcGFrZXIvc2VydmVyL2dlbi9wYWtlci92MTtwYWtlcnYxogIDUFhYqgIIUGFrZXIuVjHKAghQYWtlclxWMeICFFBha2VyXFYxXEdQQk1ldGFkYXRh6gIJUGFrZXI6OlYxYgZwcm90bzM", [file_google_api_annotations]);
 
 /**
  * @generated from message paker.v1.Item
@@ -45,6 +45,13 @@ export type Item = Message<"paker.v1.Item"> & {
    * @generated from field: bool deleted = 5;
    */
   deleted: boolean;
+
+  /**
+   * Present only for counted items.
+   *
+   * @generated from field: paker.v1.Quantity quantity = 6;
+   */
+  quantity?: Quantity | undefined;
 };
 
 /**
@@ -79,6 +86,13 @@ export type ItemJson = {
    * @generated from field: bool deleted = 5;
    */
   deleted?: boolean;
+
+  /**
+   * Present only for counted items.
+   *
+   * @generated from field: paker.v1.Quantity quantity = 6;
+   */
+  quantity?: QuantityJson;
 };
 
 /**
@@ -87,6 +101,55 @@ export type ItemJson = {
  */
 export const ItemSchema: GenMessage<Item, {jsonType: ItemJson}> = /*@__PURE__*/
   messageDesc(file_paker_v1_paker, 0);
+
+/**
+ * Counts for an item that is packed in multiples.
+ *
+ * @generated from message paker.v1.Quantity
+ */
+export type Quantity = Message<"paker.v1.Quantity"> & {
+  /**
+   * How many to bring. 0 means the item is not on this trip.
+   *
+   * @generated from field: int32 needed = 1;
+   */
+  needed: number;
+
+  /**
+   * How many are in the bag.
+   *
+   * @generated from field: int32 packed = 2;
+   */
+  packed: number;
+};
+
+/**
+ * Counts for an item that is packed in multiples.
+ *
+ * @generated from message paker.v1.Quantity
+ */
+export type QuantityJson = {
+  /**
+   * How many to bring. 0 means the item is not on this trip.
+   *
+   * @generated from field: int32 needed = 1;
+   */
+  needed?: number;
+
+  /**
+   * How many are in the bag.
+   *
+   * @generated from field: int32 packed = 2;
+   */
+  packed?: number;
+};
+
+/**
+ * Describes the message paker.v1.Quantity.
+ * Use `create(QuantitySchema)` to create a new message.
+ */
+export const QuantitySchema: GenMessage<Quantity, {jsonType: QuantityJson}> = /*@__PURE__*/
+  messageDesc(file_paker_v1_paker, 1);
 
 /**
  * @generated from message paker.v1.Category
@@ -167,7 +230,7 @@ export type CategoryJson = {
  * Use `create(CategorySchema)` to create a new message.
  */
 export const CategorySchema: GenMessage<Category, {jsonType: CategoryJson}> = /*@__PURE__*/
-  messageDesc(file_paker_v1_paker, 1);
+  messageDesc(file_paker_v1_paker, 2);
 
 /**
  * The whole packing list. Per-device view state (mode, collapsed) is not part of it.
@@ -198,7 +261,7 @@ export type PackingListJson = {
  * Use `create(PackingListSchema)` to create a new message.
  */
 export const PackingListSchema: GenMessage<PackingList, {jsonType: PackingListJson}> = /*@__PURE__*/
-  messageDesc(file_paker_v1_paker, 2);
+  messageDesc(file_paker_v1_paker, 3);
 
 /**
  * @generated from message paker.v1.GetListRequest
@@ -217,7 +280,7 @@ export type GetListRequestJson = {
  * Use `create(GetListRequestSchema)` to create a new message.
  */
 export const GetListRequestSchema: GenMessage<GetListRequest, {jsonType: GetListRequestJson}> = /*@__PURE__*/
-  messageDesc(file_paker_v1_paker, 3);
+  messageDesc(file_paker_v1_paker, 4);
 
 /**
  * @generated from message paker.v1.GetListResponse
@@ -244,7 +307,7 @@ export type GetListResponseJson = {
  * Use `create(GetListResponseSchema)` to create a new message.
  */
 export const GetListResponseSchema: GenMessage<GetListResponse, {jsonType: GetListResponseJson}> = /*@__PURE__*/
-  messageDesc(file_paker_v1_paker, 4);
+  messageDesc(file_paker_v1_paker, 5);
 
 /**
  * @generated from message paker.v1.SyncListRequest
@@ -275,7 +338,7 @@ export type SyncListRequestJson = {
  * Use `create(SyncListRequestSchema)` to create a new message.
  */
 export const SyncListRequestSchema: GenMessage<SyncListRequest, {jsonType: SyncListRequestJson}> = /*@__PURE__*/
-  messageDesc(file_paker_v1_paker, 5);
+  messageDesc(file_paker_v1_paker, 6);
 
 /**
  * @generated from message paker.v1.SyncListResponse
@@ -306,7 +369,7 @@ export type SyncListResponseJson = {
  * Use `create(SyncListResponseSchema)` to create a new message.
  */
 export const SyncListResponseSchema: GenMessage<SyncListResponse, {jsonType: SyncListResponseJson}> = /*@__PURE__*/
-  messageDesc(file_paker_v1_paker, 6);
+  messageDesc(file_paker_v1_paker, 7);
 
 /**
  * Status of one item on the packing list.

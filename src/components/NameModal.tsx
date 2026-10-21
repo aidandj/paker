@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
-import { KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 
 export interface NameRequest {
   title: string;
   initial?: string;
-  onSubmit: (name: string) => void;
+  /** When set, shows a "Count quantity" switch with this initial value (items only). */
+  quantity?: boolean;
+  onSubmit: (name: string, quantity: boolean) => void;
 }
 
 interface Props {
@@ -15,15 +17,17 @@ interface Props {
 /** A small dialog asking for a single name. Used for adding and renaming items and categories. */
 export function NameModal({ request, onClose }: Props) {
   const [text, setText] = useState('');
+  const [quantity, setQuantity] = useState(false);
 
   useEffect(() => {
     setText(request?.initial ?? '');
+    setQuantity(request?.quantity ?? false);
   }, [request]);
 
   const submit = () => {
     const name = text.trim();
     if (!name || !request) return;
-    request.onSubmit(name);
+    request.onSubmit(name, quantity);
     onClose();
   };
 
@@ -42,6 +46,12 @@ export function NameModal({ request, onClose }: Props) {
             returnKeyType="done"
             onSubmitEditing={submit}
           />
+          {request?.quantity !== undefined && (
+            <View style={styles.switchRow}>
+              <Text style={styles.switchLabel}>Count quantity (e.g. 4 shirts)</Text>
+              <Switch value={quantity} onValueChange={setQuantity} />
+            </View>
+          )}
           <View style={styles.buttons}>
             <Pressable onPress={onClose} style={styles.button}>
               <Text style={styles.cancel}>Cancel</Text>
@@ -61,6 +71,8 @@ const styles = StyleSheet.create({
   card: { backgroundColor: 'white', borderRadius: 12, padding: 16 },
   title: { fontSize: 18, fontWeight: '600', marginBottom: 12 },
   input: { borderWidth: 1, borderColor: '#CCC', borderRadius: 8, padding: 10, fontSize: 16 },
+  switchRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 12 },
+  switchLabel: { fontSize: 15, color: '#333' },
   buttons: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 12 },
   button: { paddingVertical: 8, paddingHorizontal: 16 },
   cancel: { fontSize: 16, color: '#666' },
