@@ -19,7 +19,10 @@ The app has two modes, switched at the top:
 - **Packing**: only items on the trip are shown (Not packed items and empty categories are hidden).
   Tapping an item toggles Plan to pack <-> Packed. Items added here start as Plan to pack.
 
-Tap an item's status pill to open all four state buttons (including Needs refill) plus Rename / Delete.
+Tap an item's status pill to open all four state buttons (including Needs refill) plus Edit / Delete.
+Hold an item to select several and delete them at once. In Edit, two switches: **Count quantity**
+turns the row into `− needed | packed +` (Planning adjusts needed, Packing adjusts packed; the status
+follows the counts), and **Always pack** (★) makes the item come back as Plan to pack on every new trip.
 Tap a category header to collapse it, `+` to add an item, `⋯` for Rename / Always pack / Delete.
 
 **Reset** (top right) offers two actions:

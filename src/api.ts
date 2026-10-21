@@ -41,6 +41,7 @@ export function toProto(list: PackingList): PbPackingList {
         updatedAt: BigInt(i.updatedAt),
         deleted: !!i.deleted,
         quantity: i.quantity,
+        alwaysPack: !!i.alwaysPack,
       })),
     })),
   });
@@ -64,6 +65,7 @@ export function fromProto(pb: PbPackingList | undefined, local: PackingList): Pa
         updatedAt: Number(i.updatedAt),
         deleted: i.deleted || undefined,
         ...(i.quantity ? { quantity: { needed: i.quantity.needed, packed: i.quantity.packed } } : {}),
+        ...(i.alwaysPack ? { alwaysPack: true } : {}),
       }),
     ),
   }));

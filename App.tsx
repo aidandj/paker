@@ -166,8 +166,8 @@ function Main() {
             onAddItem={() =>
               setNameRequest({
                 title: `Add item to ${c.name}`,
-                quantity: false,
-                onSubmit: (name, quantity) => update((l) => m.addItem(l, c.id, name, quantity)),
+                switches: { quantity: false, alwaysPack: false },
+                onSubmit: (name, switches) => update((l) => m.addItem(l, c.id, name, switches)),
               })
             }
             onRename={() =>
@@ -196,9 +196,8 @@ function Main() {
               setNameRequest({
                 title: 'Edit item',
                 initial: findItemName(itemId),
-                quantity: m.hasQuantity(findItem(itemId)!),
-                onSubmit: (name, quantity) =>
-                  update((l) => m.setItemQuantity(m.renameItem(l, itemId, name), itemId, quantity)),
+                switches: { quantity: m.hasQuantity(findItem(itemId)!), alwaysPack: !!findItem(itemId)?.alwaysPack },
+                onSubmit: (name, switches) => update((l) => m.editItem(l, itemId, name, switches)),
               })
             }
             onDeleteItem={(itemId) => confirmDelete(`"${findItemName(itemId)}"`, () => update((l) => m.deleteItem(l, itemId)))}

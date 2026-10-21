@@ -11,7 +11,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file paker/v1/paker.proto.
  */
 export const file_paker_v1_paker: GenFile = /*@__PURE__*/
-  fileDesc("ChRwYWtlci92MS9wYWtlci5wcm90bxIIcGFrZXIudjEijQEKBEl0ZW0SCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCRIgCgZzdGF0dXMYAyABKA4yEC5wYWtlci52MS5TdGF0dXMSEgoKdXBkYXRlZF9hdBgEIAEoAxIPCgdkZWxldGVkGAUgASgIEiQKCHF1YW50aXR5GAYgASgLMhIucGFrZXIudjEuUXVhbnRpdHkiKgoIUXVhbnRpdHkSDgoGbmVlZGVkGAEgASgFEg4KBnBhY2tlZBgCIAEoBSJ9CghDYXRlZ29yeRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEhMKC2Fsd2F5c19wYWNrGAMgASgIEhIKCnVwZGF0ZWRfYXQYBCABKAMSDwoHZGVsZXRlZBgFIAEoCBIdCgVpdGVtcxgGIAMoCzIOLnBha2VyLnYxLkl0ZW0iNQoLUGFja2luZ0xpc3QSJgoKY2F0ZWdvcmllcxgBIAMoCzISLnBha2VyLnYxLkNhdGVnb3J5IhAKDkdldExpc3RSZXF1ZXN0IjYKD0dldExpc3RSZXNwb25zZRIjCgRsaXN0GAEgASgLMhUucGFrZXIudjEuUGFja2luZ0xpc3QiNgoPU3luY0xpc3RSZXF1ZXN0EiMKBGxpc3QYASABKAsyFS5wYWtlci52MS5QYWNraW5nTGlzdCI3ChBTeW5jTGlzdFJlc3BvbnNlEiMKBGxpc3QYASABKAsyFS5wYWtlci52MS5QYWNraW5nTGlzdCp3CgZTdGF0dXMSFgoSU1RBVFVTX1VOU1BFQ0lGSUVEEAASFQoRU1RBVFVTX05PVF9QQUNLRUQQARISCg5TVEFUVVNfUExBTk5FRBACEhEKDVNUQVRVU19QQUNLRUQQAxIXChNTVEFUVVNfTkVFRFNfUkVGSUxMEAQyxQEKDFBha2VyU2VydmljZRJUCgdHZXRMaXN0EhgucGFrZXIudjEuR2V0TGlzdFJlcXVlc3QaGS5wYWtlci52MS5HZXRMaXN0UmVzcG9uc2UiFILT5JMCDhIML2FwaS92MS9saXN0El8KCFN5bmNMaXN0EhkucGFrZXIudjEuU3luY0xpc3RSZXF1ZXN0GhoucGFrZXIudjEuU3luY0xpc3RSZXNwb25zZSIcgtPkkwIWOgEqIhEvYXBpL3YxL2xpc3Q6c3luY0J+Cgxjb20ucGFrZXIudjFCClBha2VyUHJvdG9QAVohcGFrZXIvc2VydmVyL2dlbi9wYWtlci92MTtwYWtlcnYxogIDUFhYqgIIUGFrZXIuVjHKAghQYWtlclxWMeICFFBha2VyXFYxXEdQQk1ldGFkYXRh6gIJUGFrZXI6OlYxYgZwcm90bzM", [file_google_api_annotations]);
+  fileDesc("ChRwYWtlci92MS9wYWtlci5wcm90bxIIcGFrZXIudjEiogEKBEl0ZW0SCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCRIgCgZzdGF0dXMYAyABKA4yEC5wYWtlci52MS5TdGF0dXMSEgoKdXBkYXRlZF9hdBgEIAEoAxIPCgdkZWxldGVkGAUgASgIEiQKCHF1YW50aXR5GAYgASgLMhIucGFrZXIudjEuUXVhbnRpdHkSEwoLYWx3YXlzX3BhY2sYByABKAgiKgoIUXVhbnRpdHkSDgoGbmVlZGVkGAEgASgFEg4KBnBhY2tlZBgCIAEoBSJ9CghDYXRlZ29yeRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEhMKC2Fsd2F5c19wYWNrGAMgASgIEhIKCnVwZGF0ZWRfYXQYBCABKAMSDwoHZGVsZXRlZBgFIAEoCBIdCgVpdGVtcxgGIAMoCzIOLnBha2VyLnYxLkl0ZW0iNQoLUGFja2luZ0xpc3QSJgoKY2F0ZWdvcmllcxgBIAMoCzISLnBha2VyLnYxLkNhdGVnb3J5IhAKDkdldExpc3RSZXF1ZXN0IjYKD0dldExpc3RSZXNwb25zZRIjCgRsaXN0GAEgASgLMhUucGFrZXIudjEuUGFja2luZ0xpc3QiNgoPU3luY0xpc3RSZXF1ZXN0EiMKBGxpc3QYASABKAsyFS5wYWtlci52MS5QYWNraW5nTGlzdCI3ChBTeW5jTGlzdFJlc3BvbnNlEiMKBGxpc3QYASABKAsyFS5wYWtlci52MS5QYWNraW5nTGlzdCp3CgZTdGF0dXMSFgoSU1RBVFVTX1VOU1BFQ0lGSUVEEAASFQoRU1RBVFVTX05PVF9QQUNLRUQQARISCg5TVEFUVVNfUExBTk5FRBACEhEKDVNUQVRVU19QQUNLRUQQAxIXChNTVEFUVVNfTkVFRFNfUkVGSUxMEAQyxQEKDFBha2VyU2VydmljZRJUCgdHZXRMaXN0EhgucGFrZXIudjEuR2V0TGlzdFJlcXVlc3QaGS5wYWtlci52MS5HZXRMaXN0UmVzcG9uc2UiFILT5JMCDhIML2FwaS92MS9saXN0El8KCFN5bmNMaXN0EhkucGFrZXIudjEuU3luY0xpc3RSZXF1ZXN0GhoucGFrZXIudjEuU3luY0xpc3RSZXNwb25zZSIcgtPkkwIWOgEqIhEvYXBpL3YxL2xpc3Q6c3luY0J+Cgxjb20ucGFrZXIudjFCClBha2VyUHJvdG9QAVohcGFrZXIvc2VydmVyL2dlbi9wYWtlci92MTtwYWtlcnYxogIDUFhYqgIIUGFrZXIuVjHKAghQYWtlclxWMeICFFBha2VyXFYxXEdQQk1ldGFkYXRh6gIJUGFrZXI6OlYxYgZwcm90bzM", [file_google_api_annotations]);
 
 /**
  * @generated from message paker.v1.Item
@@ -52,6 +52,14 @@ export type Item = Message<"paker.v1.Item"> & {
    * @generated from field: paker.v1.Quantity quantity = 6;
    */
   quantity?: Quantity | undefined;
+
+  /**
+   * Goes to "planned" instead of "not packed" when a new trip starts (also true for every item of
+   * an always-pack category).
+   *
+   * @generated from field: bool always_pack = 7;
+   */
+  alwaysPack: boolean;
 };
 
 /**
@@ -93,6 +101,14 @@ export type ItemJson = {
    * @generated from field: paker.v1.Quantity quantity = 6;
    */
   quantity?: QuantityJson;
+
+  /**
+   * Goes to "planned" instead of "not packed" when a new trip starts (also true for every item of
+   * an always-pack category).
+   *
+   * @generated from field: bool always_pack = 7;
+   */
+  alwaysPack?: boolean;
 };
 
 /**

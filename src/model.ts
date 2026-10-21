@@ -124,15 +124,34 @@ export function toggleAlwaysPack(list: PackingList, id: string): PackingList {
 
 // --- items ---
 
+export interface ItemOptions {
+  quantity: boolean;
+  alwaysPack: boolean;
+}
+
 /** New items start as "Not packed" in planning mode and "Plan to pack" in packing mode, so they stay visible. */
-export function addItem(list: PackingList, categoryId: string, name: string, quantity = false): PackingList {
+export function addItem(list: PackingList, categoryId: string, name: string, opts?: Partial<ItemOptions>): PackingList {
   const base: Item = { id: newId(), name, status: list.mode === 'packing' ? 'planned' : 'not_packed', updatedAt: now() };
-  const item = quantity ? withQuantityFor({ ...base, quantity: { needed: 0, packed: 0 } }) : base;
+  if (opts?.alwaysPack) base.alwaysPack = true;
+  const item = opts?.quantity ? withQuantityFor({ ...base, quantity: { needed: 0, packed: 0 } }) : base;
   return mapCategory(list, categoryId, (c) => ({ ...c, items: [...c.items, item] }));
 }
 
 export function renameItem(list: PackingList, itemId: string, name: string): PackingList {
-  return mapItems(list, (i) => (i.id === itemId ? { ...i, name, updatedAt: now() } : i));
+  return mapItems(list, (i) => (i.id === itemId && i.name !== name ? { ...i, name, updatedAt: now() } : i));
+}
+
+export function setItemAlwaysPack(list: PackingList, itemId: string, on: boolean): PackingList {
+  return mapItems(list, (i) => {
+    if (i.id !== itemId || !!i.alwaysPack === on) return i;
+    const { alwaysPack: _a, ...rest } = i;
+    return { ...rest, ...(on ? { alwaysPack: true } : {}), updatedAt: now() };
+  });
+}
+
+/** Apply the edit dialog's result: name plus the two switches. */
+export function editItem(list: PackingList, itemId: string, name: string, opts: ItemOptions): PackingList {
+  return setItemAlwaysPack(setItemQuantity(renameItem(list, itemId, name), itemId, opts.quantity), itemId, opts.alwaysPack);
 }
 
 export function deleteItem(list: PackingList, itemId: string): PackingList {
@@ -161,13 +180,13 @@ export function unpackAll(list: PackingList): PackingList {
 
 /**
  * Start planning a new trip. Everything goes back to "Not packed", except:
- *  - items in an "always pack" category go to "Plan to pack"
+ *  - "always pack" items, and every item of an "always pack" category, go to "Plan to pack"
  *  - items that need a refill stay that way, so they are not forgotten
  */
 export function startNewTrip(list: PackingList): PackingList {
   return mapItems(list, (i, c) => {
     if (i.status === 'needs_refill') return i;
-    return withStatus(i, c.alwaysPack ? 'planned' : 'not_packed');
+    return withStatus(i, c.alwaysPack || i.alwaysPack ? 'planned' : 'not_packed');
   });
 }
 

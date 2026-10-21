@@ -88,7 +88,10 @@ type Item struct {
 	// Tombstone: deleted items stay in the list so the delete reaches every device.
 	Deleted bool `protobuf:"varint,5,opt,name=deleted,proto3" json:"deleted,omitempty"`
 	// Present only for counted items.
-	Quantity      *Quantity `protobuf:"bytes,6,opt,name=quantity,proto3" json:"quantity,omitempty"`
+	Quantity *Quantity `protobuf:"bytes,6,opt,name=quantity,proto3" json:"quantity,omitempty"`
+	// Goes to "planned" instead of "not packed" when a new trip starts (also true for every item of
+	// an always-pack category).
+	AlwaysPack    bool `protobuf:"varint,7,opt,name=always_pack,json=alwaysPack,proto3" json:"always_pack,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -163,6 +166,13 @@ func (x *Item) GetQuantity() *Quantity {
 		return x.Quantity
 	}
 	return nil
+}
+
+func (x *Item) GetAlwaysPack() bool {
+	if x != nil {
+		return x.AlwaysPack
+	}
+	return false
 }
 
 // Counts for an item that is packed in multiples.
@@ -524,7 +534,7 @@ var File_paker_v1_paker_proto protoreflect.FileDescriptor
 
 const file_paker_v1_paker_proto_rawDesc = "" +
 	"\n" +
-	"\x14paker/v1/paker.proto\x12\bpaker.v1\x1a\x1cgoogle/api/annotations.proto\"\xbd\x01\n" +
+	"\x14paker/v1/paker.proto\x12\bpaker.v1\x1a\x1cgoogle/api/annotations.proto\"\xde\x01\n" +
 	"\x04Item\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12(\n" +
@@ -532,7 +542,9 @@ const file_paker_v1_paker_proto_rawDesc = "" +
 	"\n" +
 	"updated_at\x18\x04 \x01(\x03R\tupdatedAt\x12\x18\n" +
 	"\adeleted\x18\x05 \x01(\bR\adeleted\x12.\n" +
-	"\bquantity\x18\x06 \x01(\v2\x12.paker.v1.QuantityR\bquantity\":\n" +
+	"\bquantity\x18\x06 \x01(\v2\x12.paker.v1.QuantityR\bquantity\x12\x1f\n" +
+	"\valways_pack\x18\a \x01(\bR\n" +
+	"alwaysPack\":\n" +
 	"\bQuantity\x12\x16\n" +
 	"\x06needed\x18\x01 \x01(\x05R\x06needed\x12\x16\n" +
 	"\x06packed\x18\x02 \x01(\x05R\x06packed\"\xae\x01\n" +

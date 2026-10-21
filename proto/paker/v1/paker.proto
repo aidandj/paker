@@ -25,6 +25,9 @@ message Item {
   bool deleted = 5;
   // Present only for counted items.
   Quantity quantity = 6;
+  // Goes to "planned" instead of "not packed" when a new trip starts (also true for every item of
+  // an always-pack category).
+  bool always_pack = 7;
 }
 
 // Counts for an item that is packed in multiples.

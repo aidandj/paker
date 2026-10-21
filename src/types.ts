@@ -30,6 +30,8 @@ export interface Item {
   deleted?: boolean;
   /** Present only for counted items: needed is how many to bring (0 = not on this trip), packed how many are in the bag. */
   quantity?: Quantity;
+  /** Goes to "Plan to pack" when a new trip starts, like items of an always-pack category. */
+  alwaysPack?: boolean;
 }
 
 export interface Quantity {

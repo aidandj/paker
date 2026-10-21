@@ -120,7 +120,7 @@ test('packing mode hides not-packed items; new items there start as planned', ()
 });
 
 test('quantity items: needed drives planning, packed drives packing, resets zero both', () => {
-  let list = m.addItem(fixture(), 'clothes', 'Shirts', true);
+  let list = m.addItem(fixture(), 'clothes', 'Shirts', { quantity: true });
   const id = list.categories[1].items.at(-1)!.id;
   const item = (l: PackingList) => l.categories[1].items.find((i) => i.id === id)!;
   assert.deepEqual(item(list).quantity, { needed: 0, packed: 0 });
@@ -162,6 +162,18 @@ test('quantity items: needed drives planning, packed drives packing, resets zero
 
   list = m.setItemQuantity(list, id, false);
   assert.equal(item(list).quantity, undefined);
+});
+
+test('always-pack items go to planned on a new trip, others to not packed', () => {
+  let list = m.setItemAlwaysPack(fixture(), 'clothes-shirt', true);
+  assert.equal(list.categories[1].items[0].alwaysPack, true);
+  list = m.startNewTrip(list);
+  assert.equal(list.categories[1].items[0].status, 'planned'); // flagged item
+  assert.equal(list.categories[1].items[1].status, 'not_packed'); // plain item
+  assert.equal(list.categories[0].items[1].status, 'planned'); // always-pack category
+  list = m.editItem(list, 'clothes-shirt', 'tee', { quantity: false, alwaysPack: false });
+  assert.equal(list.categories[1].items[0].alwaysPack, undefined);
+  assert.equal(list.categories[1].items[0].name, 'tee');
 });
 
 test('countStatuses counts packed and active (anything but not_packed), ignoring tombstones', () => {

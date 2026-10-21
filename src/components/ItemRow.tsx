@@ -37,6 +37,7 @@ export function ItemRow({ item, mode, expanded, selecting, selected, onTap, onLo
         <View style={[styles.bar, { backgroundColor: color }]} />
         {selecting && <Text style={[styles.check, selected && styles.checkOn]}>{selected ? '☑' : '☐'}</Text>}
         <Text style={styles.name} numberOfLines={1}>
+          {item.alwaysPack && <Text style={styles.star}>★ </Text>}
           {item.name}
         </Text>
         {q && !selecting && (
@@ -97,6 +98,7 @@ const styles = StyleSheet.create({
   bar: { width: 6, alignSelf: 'stretch' },
   name: { flex: 1, fontSize: 16, paddingHorizontal: 12 },
   pill: { borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4, marginRight: 12 },
+  star: { color: '#2F80ED', fontSize: 14 },
   qty: { flexDirection: 'row', alignItems: 'center', marginRight: 8 },
   qtyButton: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#EEF1F5', alignItems: 'center', justifyContent: 'center' },
   qtyButtonText: { fontSize: 20, color: '#333', lineHeight: 24 },

@@ -1,12 +1,17 @@
 import { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 
+export interface ItemSwitches {
+  quantity: boolean;
+  alwaysPack: boolean;
+}
+
 export interface NameRequest {
   title: string;
   initial?: string;
-  /** When set, shows a "Count quantity" switch with this initial value (items only). */
-  quantity?: boolean;
-  onSubmit: (name: string, quantity: boolean) => void;
+  /** When set, shows the item switches with these initial values (items only). */
+  switches?: ItemSwitches;
+  onSubmit: (name: string, switches: ItemSwitches) => void;
 }
 
 interface Props {
@@ -17,17 +22,17 @@ interface Props {
 /** A small dialog asking for a single name. Used for adding and renaming items and categories. */
 export function NameModal({ request, onClose }: Props) {
   const [text, setText] = useState('');
-  const [quantity, setQuantity] = useState(false);
+  const [switches, setSwitches] = useState<ItemSwitches>({ quantity: false, alwaysPack: false });
 
   useEffect(() => {
     setText(request?.initial ?? '');
-    setQuantity(request?.quantity ?? false);
+    setSwitches(request?.switches ?? { quantity: false, alwaysPack: false });
   }, [request]);
 
   const submit = () => {
     const name = text.trim();
     if (!name || !request) return;
-    request.onSubmit(name, quantity);
+    request.onSubmit(name, switches);
     onClose();
   };
 
@@ -46,11 +51,17 @@ export function NameModal({ request, onClose }: Props) {
             returnKeyType="done"
             onSubmitEditing={submit}
           />
-          {request?.quantity !== undefined && (
-            <View style={styles.switchRow}>
-              <Text style={styles.switchLabel}>Count quantity (e.g. 4 shirts)</Text>
-              <Switch value={quantity} onValueChange={setQuantity} />
-            </View>
+          {request?.switches && (
+            <>
+              <View style={styles.switchRow}>
+                <Text style={styles.switchLabel}>Count quantity (e.g. 4 shirts)</Text>
+                <Switch value={switches.quantity} onValueChange={(v) => setSwitches((s) => ({ ...s, quantity: v }))} />
+              </View>
+              <View style={styles.switchRow}>
+                <Text style={styles.switchLabel}>Always pack (planned on every new trip)</Text>
+                <Switch value={switches.alwaysPack} onValueChange={(v) => setSwitches((s) => ({ ...s, alwaysPack: v }))} />
+              </View>
+            </>
           )}
           <View style={styles.buttons}>
             <Pressable onPress={onClose} style={styles.button}>
