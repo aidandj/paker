@@ -1,20 +1,24 @@
 # Build from the repo root:  docker compose up -d   (or: docker build -f server/Dockerfile .)
 
-# 1. Web app (Expo export) -> /app/dist
-FROM node:24-alpine AS web
+# Both build stages run natively on the build machine ($BUILDPLATFORM) and cross-compile; only the
+# final stage is per target architecture. No QEMU emulation, so multi-arch builds stay fast.
+
+# 1. Web app (Expo export) -> /app/dist  (the JS bundle is architecture independent)
+FROM --platform=$BUILDPLATFORM node:24-alpine AS web
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
 RUN npx expo export --platform web
 
-# 2. Go server
-FROM golang:1.26-alpine AS build
+# 2. Go server, cross-compiled for the target
+FROM --platform=$BUILDPLATFORM golang:1.26-alpine AS build
+ARG TARGETOS TARGETARCH
 WORKDIR /src
 COPY server/go.mod server/go.sum ./
 RUN go mod download
 COPY server/ .
-RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o /paker .
+RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -ldflags="-s -w" -o /paker .
 
 # 3. Minimal runtime image: the binary and the web build
 FROM scratch
