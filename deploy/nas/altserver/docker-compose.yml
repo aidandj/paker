@@ -1,0 +1,69 @@
+# AltServer on the NAS, so AltStore on the iPhone installs and auto-refreshes apps over home Wi-Fi.
+# Based on push-codeAI/altserver-linux deploy/altserver-stack.yml, trimmed for Synology:
+#  - anisette runs separately (../anisette), reached over the host loopback
+#  - no host usbmuxd on Synology; the one-time pairing record is made on the Mac (deploy/mac/pair-iphone.sh)
+#    and copied into ./lockdown
+# LAN only. Never put 8099 behind SWAG.
+version: "3.8"
+
+services:
+  netmuxd:                       # finds the phone over Wi-Fi (mDNS) and serves it to AltServer
+    image: ghcr.io/ben-diehlci/altserver-linux:latest
+    container_name: netmuxd
+    restart: unless-stopped
+    network_mode: host
+    init: true
+    entrypoint: ["/usr/local/bin/netmuxd"]
+    command: ["--socket-path", "/run/muxd/usbmuxd", "--plist-storage", "/var/lib/lockdown", "--disable-usb"]
+    volumes:
+      - muxd-socket:/run/muxd
+      - ./lockdown:/var/lib/lockdown:ro
+
+  altserver:
+    image: ghcr.io/ben-diehlci/altserver-linux:latest
+    container_name: altserver
+    restart: unless-stopped
+    depends_on: [netmuxd]
+    network_mode: host           # Bonjour (_altserver._tcp) is link-local; a bridge would hide it
+    init: true
+    security_opt: ["apparmor=unconfined"]   # D-Bus calls to the host's avahi are denied under docker-default
+    environment:
+      ALTSERVER_ANISETTE_SERVER: http://127.0.0.1:6969
+      USBMUXD_SOCKET_ADDRESS: UNIX:/run/muxd/usbmuxd
+      ALTSTORE_SKIP_FETCH: "0"
+      ALTSERVER_UDID: ${ALTSERVER_UDID:-}
+      ALTSERVER_APPLE_ID: ${ALTSERVER_APPLE_ID:-}
+      ALTSERVER_APPLE_PASSWORD: ${ALTSERVER_APPLE_PASSWORD:-}
+    volumes:
+      - altserver-data:/data
+      - ./lockdown:/var/lib/lockdown
+      - muxd-socket:/run/muxd
+      - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket
+      - /var/run/avahi-daemon/socket:/var/run/avahi-daemon/socket
+      - /etc/machine-id:/etc/machine-id:ro
+    command: []
+
+  altserver-web:                 # status page, pairing check and the AltStore install flow (2FA in browser)
+    image: ghcr.io/ben-diehlci/altserver-linux:latest
+    container_name: altserver-web
+    restart: unless-stopped
+    network_mode: host
+    init: true
+    pid: host
+    security_opt: ["apparmor=unconfined"]
+    environment:
+      ALTSERVER_ANISETTE_SERVER: http://127.0.0.1:6969
+      ALTSTORE_SKIP_FETCH: "1"
+    volumes:
+      - altserver-data:/data
+      - ./lockdown:/var/lib/lockdown
+      - muxd-socket:/run/muxd
+      - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket
+      - /var/run/avahi-daemon/socket:/var/run/avahi-daemon/socket
+      - /etc/machine-id:/etc/machine-id:ro
+    entrypoint: ["python3", "/opt/altserver-web/server.py"]
+    command: ["--host", "0.0.0.0", "--port", "8099"]
+
+volumes:
+  altserver-data:
+  muxd-socket:

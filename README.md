@@ -91,20 +91,26 @@ Moving to a cloud function later: `internal/paker.Service` is plain gRPC, the HT
 `http.Handler`, and storage is a two-method `Store` interface. Wrap the handler with a Lambda adapter
 and give `Service` an S3-backed `Store`.
 
-## Installing on iPhone (SideStore)
+## Installing on iPhone (AltStore, served from the NAS)
 
-There is no App Store listing. The release workflow produces an unsigned .ipa which the phone signs
-itself with your Apple ID through [SideStore](https://sidestore.io). One-time setup:
+There is no App Store listing. The release workflow produces an unsigned .ipa; AltStore on the phone
+signs it with your Apple ID through AltServer running on the NAS
+([deploy/nas/altserver/](deploy/nas/altserver/), based on push-codeAI/altserver-linux with netmuxd
+for Wi-Fi). Free Apple IDs: 3 apps max, 7-day certificates, refreshed automatically whenever the
+phone is on home Wi-Fi. One-time setup:
 
-1. Install SideStore on the phone following its docs (needs a computer once, to pair).
-2. In SideStore settings, set the anisette server to `https://anisette.aidandj.com` (self-hosted,
-   see [deploy/nas/anisette/](deploy/nas/anisette/)).
-3. Add the source `https://paker.aidandj.com/altstore.json`. Paker appears with Install, and later
-   Update whenever a release is published. Free Apple IDs: 3 apps max, refreshed every 7 days
-   automatically by SideStore.
+1. NAS: `sudo sh /tmp/paker/deploy/nas/deploy-anisette.sh` (Apple machine identity server).
+2. Mac, iPhone plugged in and trusted, Finder "Show this iPhone when on Wi-Fi" enabled:
+   `sudo sh deploy/mac/pair-iphone.sh` copies the pairing record to the NAS and prints the UDID.
+3. NAS: fill `/volume2/docker-composes/altserver/.env`, then `sudo sh /tmp/paker/deploy/nas/deploy-altserver.sh`.
+4. Open `http://<nas>:8099/install` on the LAN, sign in with the Apple ID (2FA in the browser);
+   AltStore lands on the phone. Trust the certificate under Settings > General > VPN & Device Management.
+5. In AltStore add the source `https://paker.aidandj.com/altstore.json`. Paker appears with Install,
+   and Update whenever a release is published.
 
 The Docker image serves `altstore.json`, the `.ipa` and `icon.png` next to the web app, so none of
-this depends on the GitHub repo being public.
+this depends on the GitHub repo being public. The same source and anisette server also work with
+SideStore if you ever prefer refreshing away from home.
 
 ## Layout
 

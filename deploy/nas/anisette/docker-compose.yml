@@ -7,6 +7,8 @@ services:
     image: dadoum/anisette-v3-server:latest
     container_name: anisette
     restart: unless-stopped
+    environment:
+      TZ: UTC   # must be UTC: the server stamps client time as UTC from local time
     ports:
       - "6969:6969"
     volumes:
