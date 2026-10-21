@@ -64,8 +64,6 @@ jobs:
             type=raw,value=${{ needs.version.outputs.tag }}
             type=raw,value=${{ needs.version.outputs.version }}
       - uses: docker/build-push-action@v6
-        env:
-          DOCKER_BUILD_RECORD_UPLOAD: "false"   # no *.dockerbuild artifacts
         with:
           context: .
           file: server/Dockerfile
