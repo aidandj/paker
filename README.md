@@ -70,8 +70,8 @@ pulls it, so hosts never need to build.
 ## Releases
 
 Every push to `main` runs [.github/workflows/release.yml](.github/workflows/release.yml): it computes
-the next version from the commit messages (`feat:` minor, anything else patch, `BREAKING CHANGE` major),
-builds the Docker image (pushed to GHCR as `latest` and `vX.Y.Z`), the Android APK and an unsigned
+the next version from git history with PaulHatch/semantic-version (patch bump by default; put
+`(MINOR)` or `(MAJOR)` in a commit message for a bigger bump), builds the Docker image (pushed to GHCR as `latest` and `vX.Y.Z`), the Android APK and an unsigned
 iOS .ipa, then tags the commit and publishes a GitHub release with the APK and .ipa attached.
 The APK is signed with the debug key, fine for sideloading. Local equivalents:
 

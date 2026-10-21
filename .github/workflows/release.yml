@@ -21,21 +21,22 @@ jobs:
   version:
     runs-on: ubuntu-latest
     outputs:
-      tag: ${{ steps.semver.outputs.new_tag }}
-      version: ${{ steps.semver.outputs.new_version }}
-      changelog: ${{ steps.semver.outputs.changelog }}
+      tag: ${{ steps.semver.outputs.version_tag }}
+      version: ${{ steps.semver.outputs.version }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      # Computes the next tag from conventional commits (feat: minor, fix:/other: patch, BREAKING CHANGE: major).
-      # dry_run: the tag itself is created at the end, after the builds succeed.
+      # Next version from git history: patch bump since the last v* tag, "(MINOR)" or "(MAJOR)" in a
+      # commit message bumps more. The tag itself is created by the release job after the builds succeed.
       - id: semver
-        uses: mathieudutour/github-tag-action@v6.2
+        uses: PaulHatch/semantic-version@v6.0.2
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          default_bump: patch
-          dry_run: true
+          tag_prefix: v
+          major_pattern: "(MAJOR)"
+          minor_pattern: "(MINOR)"
+          version_format: "${major}.${minor}.${patch}"
+          enable_prerelease_mode: true
 
   docker:
     needs: [version, ios]   # the image also serves the .ipa and the SideStore source
@@ -89,7 +90,10 @@ jobs:
       # ubuntu-latest already has the Android SDK at $ANDROID_HOME; Gradle fetches what it needs.
       - run: npm ci
       - name: Stamp version into app.json
-        run: node scripts/set-version.js "${{ needs.version.outputs.version }}" "${{ github.run_number }}"
+        run: |
+          jq --arg v "${{ needs.version.outputs.version }}" --argjson b ${{ github.run_number }} \
+            '.expo.version = $v | .expo.android.versionCode = $b | .expo.ios.buildNumber = ($b | tostring)' \
+            app.json > app.json.tmp && mv app.json.tmp app.json
       - run: npx expo prebuild --platform android --no-install
         env:
           CI: 1
@@ -112,7 +116,10 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Stamp version into app.json
-        run: node scripts/set-version.js "${{ needs.version.outputs.version }}" "${{ github.run_number }}"
+        run: |
+          jq --arg v "${{ needs.version.outputs.version }}" --argjson b ${{ github.run_number }} \
+            '.expo.version = $v | .expo.android.versionCode = $b | .expo.ios.buildNumber = ($b | tostring)' \
+            app.json > app.json.tmp && mv app.json.tmp app.json
       - run: npx expo prebuild --platform ios
         env:
           CI: 1
@@ -132,24 +139,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       - uses: actions/download-artifact@v4
         with:
           path: dist
           merge-multiple: true
-      - name: Create tag
-        uses: mathieudutour/github-tag-action@v6.2
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          custom_tag: ${{ needs.version.outputs.version }}
+      # Creates the tag (it does not exist yet) and the release, with auto-generated notes.
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.version.outputs.tag }}
           name: ${{ needs.version.outputs.tag }}
+          generate_release_notes: true
           body: |
-            ${{ needs.version.outputs.changelog }}
-
             Docker image: `${{ env.IMAGE }}:${{ needs.version.outputs.tag }}` (also `:latest`)
             The APK is signed with the debug key (fine for sideloading). The .ipa is unsigned.
           files: |
