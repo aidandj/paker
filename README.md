@@ -64,6 +64,17 @@ docker compose up -d     # builds the web app and the Go server; data lives in t
 Put it behind your reverse proxy with TLS. Then open `https://your-host/` in a browser for the web
 app, or point the phone app at that URL.
 
+A multi-arch image (amd64, arm64) is published at `ghcr.io/aidandj/paker:latest`; the compose file
+pulls it, so hosts never need to build. Publish a new one from this directory with:
+
+```sh
+docker buildx build --platform linux/amd64,linux/arm64 -f server/Dockerfile -t ghcr.io/aidandj/paker:latest --push .
+```
+
+[deploy/nas/](deploy/nas/) holds the Synology/SWAG setup actually used for paker.aidandj.com:
+`deploy.sh` copies the compose file to the NAS, creates `.env`, pulls and starts the container,
+installs the SWAG proxy conf and reloads nginx.
+
 Without Docker: `cd server && SYNC_USER=me SYNC_PASSWORD=x DATA_FILE=./paker.json WEB_DIR=../dist go run .`
 (`npx expo export --platform web` produces `dist/`).
 

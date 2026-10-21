@@ -1,3 +1,5 @@
+version: "3.8"   # kept for the docker-compose v1 on the NAS; v2 ignores it
+
 services:
   paker:
     image: ghcr.io/aidandj/paker:latest   # docker compose pull; or build locally with --build
