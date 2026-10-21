@@ -81,7 +81,7 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-      - uses: android-actions/setup-android@v3
+      # ubuntu-latest already has the Android SDK at $ANDROID_HOME; Gradle fetches what it needs.
       - run: npm ci
       - name: Stamp version into app.json
         run: node scripts/set-version.js "${{ needs.version.outputs.version }}" "${{ github.run_number }}"
