@@ -168,6 +168,9 @@ jobs:
         with:
           tag_name: ${{ needs.version.outputs.tag }}
           name: ${{ needs.version.outputs.tag }}
+          # Tag this run's commit. Without it the API tags the branch tip, which may already be a
+          # newer commit, and the next run then reuses the version number.
+          target_commitish: ${{ github.sha }}
           generate_release_notes: true
           body: |
             Docker image: `${{ env.IMAGE }}:${{ needs.version.outputs.tag }}` (also `:latest`)
