@@ -396,6 +396,87 @@ func (*GetListRequest) Descriptor() ([]byte, []int) {
 	return file_paker_v1_paker_proto_rawDescGZIP(), []int{4}
 }
 
+type GetListVersionRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetListVersionRequest) Reset() {
+	*x = GetListVersionRequest{}
+	mi := &file_paker_v1_paker_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetListVersionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetListVersionRequest) ProtoMessage() {}
+
+func (x *GetListVersionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_paker_v1_paker_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetListVersionRequest.ProtoReflect.Descriptor instead.
+func (*GetListVersionRequest) Descriptor() ([]byte, []int) {
+	return file_paker_v1_paker_proto_rawDescGZIP(), []int{5}
+}
+
+type GetListVersionResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Changes whenever the stored list changes. Clients poll this and sync only when it differs.
+	Version       string `protobuf:"bytes,1,opt,name=version,proto3" json:"version,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetListVersionResponse) Reset() {
+	*x = GetListVersionResponse{}
+	mi := &file_paker_v1_paker_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetListVersionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetListVersionResponse) ProtoMessage() {}
+
+func (x *GetListVersionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_paker_v1_paker_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetListVersionResponse.ProtoReflect.Descriptor instead.
+func (*GetListVersionResponse) Descriptor() ([]byte, []int) {
+	return file_paker_v1_paker_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *GetListVersionResponse) GetVersion() string {
+	if x != nil {
+		return x.Version
+	}
+	return ""
+}
+
 type GetListResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	List          *PackingList           `protobuf:"bytes,1,opt,name=list,proto3" json:"list,omitempty"`
@@ -405,7 +486,7 @@ type GetListResponse struct {
 
 func (x *GetListResponse) Reset() {
 	*x = GetListResponse{}
-	mi := &file_paker_v1_paker_proto_msgTypes[5]
+	mi := &file_paker_v1_paker_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -417,7 +498,7 @@ func (x *GetListResponse) String() string {
 func (*GetListResponse) ProtoMessage() {}
 
 func (x *GetListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_paker_v1_paker_proto_msgTypes[5]
+	mi := &file_paker_v1_paker_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -430,7 +511,7 @@ func (x *GetListResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetListResponse.ProtoReflect.Descriptor instead.
 func (*GetListResponse) Descriptor() ([]byte, []int) {
-	return file_paker_v1_paker_proto_rawDescGZIP(), []int{5}
+	return file_paker_v1_paker_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GetListResponse) GetList() *PackingList {
@@ -450,7 +531,7 @@ type SyncListRequest struct {
 
 func (x *SyncListRequest) Reset() {
 	*x = SyncListRequest{}
-	mi := &file_paker_v1_paker_proto_msgTypes[6]
+	mi := &file_paker_v1_paker_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -462,7 +543,7 @@ func (x *SyncListRequest) String() string {
 func (*SyncListRequest) ProtoMessage() {}
 
 func (x *SyncListRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_paker_v1_paker_proto_msgTypes[6]
+	mi := &file_paker_v1_paker_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -475,7 +556,7 @@ func (x *SyncListRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SyncListRequest.ProtoReflect.Descriptor instead.
 func (*SyncListRequest) Descriptor() ([]byte, []int) {
-	return file_paker_v1_paker_proto_rawDescGZIP(), []int{6}
+	return file_paker_v1_paker_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *SyncListRequest) GetList() *PackingList {
@@ -488,14 +569,16 @@ func (x *SyncListRequest) GetList() *PackingList {
 type SyncListResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The stored list after merging in the request. The device should replace its copy with this.
-	List          *PackingList `protobuf:"bytes,1,opt,name=list,proto3" json:"list,omitempty"`
+	List *PackingList `protobuf:"bytes,1,opt,name=list,proto3" json:"list,omitempty"`
+	// Version of that list, for comparison with GetListVersion.
+	Version       string `protobuf:"bytes,2,opt,name=version,proto3" json:"version,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *SyncListResponse) Reset() {
 	*x = SyncListResponse{}
-	mi := &file_paker_v1_paker_proto_msgTypes[7]
+	mi := &file_paker_v1_paker_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -507,7 +590,7 @@ func (x *SyncListResponse) String() string {
 func (*SyncListResponse) ProtoMessage() {}
 
 func (x *SyncListResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_paker_v1_paker_proto_msgTypes[7]
+	mi := &file_paker_v1_paker_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -520,7 +603,7 @@ func (x *SyncListResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SyncListResponse.ProtoReflect.Descriptor instead.
 func (*SyncListResponse) Descriptor() ([]byte, []int) {
-	return file_paker_v1_paker_proto_rawDescGZIP(), []int{7}
+	return file_paker_v1_paker_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *SyncListResponse) GetList() *PackingList {
@@ -528,6 +611,13 @@ func (x *SyncListResponse) GetList() *PackingList {
 		return x.List
 	}
 	return nil
+}
+
+func (x *SyncListResponse) GetVersion() string {
+	if x != nil {
+		return x.Version
+	}
+	return ""
 }
 
 var File_paker_v1_paker_proto protoreflect.FileDescriptor
@@ -561,21 +651,26 @@ const file_paker_v1_paker_proto_rawDesc = "" +
 	"\n" +
 	"categories\x18\x01 \x03(\v2\x12.paker.v1.CategoryR\n" +
 	"categories\"\x10\n" +
-	"\x0eGetListRequest\"<\n" +
+	"\x0eGetListRequest\"\x17\n" +
+	"\x15GetListVersionRequest\"2\n" +
+	"\x16GetListVersionResponse\x12\x18\n" +
+	"\aversion\x18\x01 \x01(\tR\aversion\"<\n" +
 	"\x0fGetListResponse\x12)\n" +
 	"\x04list\x18\x01 \x01(\v2\x15.paker.v1.PackingListR\x04list\"<\n" +
 	"\x0fSyncListRequest\x12)\n" +
-	"\x04list\x18\x01 \x01(\v2\x15.paker.v1.PackingListR\x04list\"=\n" +
+	"\x04list\x18\x01 \x01(\v2\x15.paker.v1.PackingListR\x04list\"W\n" +
 	"\x10SyncListResponse\x12)\n" +
-	"\x04list\x18\x01 \x01(\v2\x15.paker.v1.PackingListR\x04list*w\n" +
+	"\x04list\x18\x01 \x01(\v2\x15.paker.v1.PackingListR\x04list\x12\x18\n" +
+	"\aversion\x18\x02 \x01(\tR\aversion*w\n" +
 	"\x06Status\x12\x16\n" +
 	"\x12STATUS_UNSPECIFIED\x10\x00\x12\x15\n" +
 	"\x11STATUS_NOT_PACKED\x10\x01\x12\x12\n" +
 	"\x0eSTATUS_PLANNED\x10\x02\x12\x11\n" +
 	"\rSTATUS_PACKED\x10\x03\x12\x17\n" +
-	"\x13STATUS_NEEDS_REFILL\x10\x042\xc5\x01\n" +
+	"\x13STATUS_NEEDS_REFILL\x10\x042\xb8\x02\n" +
 	"\fPakerService\x12T\n" +
-	"\aGetList\x12\x18.paker.v1.GetListRequest\x1a\x19.paker.v1.GetListResponse\"\x14\x82\xd3\xe4\x93\x02\x0e\x12\f/api/v1/list\x12_\n" +
+	"\aGetList\x12\x18.paker.v1.GetListRequest\x1a\x19.paker.v1.GetListResponse\"\x14\x82\xd3\xe4\x93\x02\x0e\x12\f/api/v1/list\x12q\n" +
+	"\x0eGetListVersion\x12\x1f.paker.v1.GetListVersionRequest\x1a .paker.v1.GetListVersionResponse\"\x1c\x82\xd3\xe4\x93\x02\x16\x12\x14/api/v1/list:version\x12_\n" +
 	"\bSyncList\x12\x19.paker.v1.SyncListRequest\x1a\x1a.paker.v1.SyncListResponse\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/api/v1/list:syncB~\n" +
 	"\fcom.paker.v1B\n" +
 	"PakerProtoP\x01Z!paker/server/gen/paker/v1;pakerv1\xa2\x02\x03PXX\xaa\x02\bPaker.V1\xca\x02\bPaker\\V1\xe2\x02\x14Paker\\V1\\GPBMetadata\xea\x02\tPaker::V1b\x06proto3"
@@ -593,35 +688,39 @@ func file_paker_v1_paker_proto_rawDescGZIP() []byte {
 }
 
 var file_paker_v1_paker_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_paker_v1_paker_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_paker_v1_paker_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_paker_v1_paker_proto_goTypes = []any{
-	(Status)(0),              // 0: paker.v1.Status
-	(*Item)(nil),             // 1: paker.v1.Item
-	(*Quantity)(nil),         // 2: paker.v1.Quantity
-	(*Category)(nil),         // 3: paker.v1.Category
-	(*PackingList)(nil),      // 4: paker.v1.PackingList
-	(*GetListRequest)(nil),   // 5: paker.v1.GetListRequest
-	(*GetListResponse)(nil),  // 6: paker.v1.GetListResponse
-	(*SyncListRequest)(nil),  // 7: paker.v1.SyncListRequest
-	(*SyncListResponse)(nil), // 8: paker.v1.SyncListResponse
+	(Status)(0),                    // 0: paker.v1.Status
+	(*Item)(nil),                   // 1: paker.v1.Item
+	(*Quantity)(nil),               // 2: paker.v1.Quantity
+	(*Category)(nil),               // 3: paker.v1.Category
+	(*PackingList)(nil),            // 4: paker.v1.PackingList
+	(*GetListRequest)(nil),         // 5: paker.v1.GetListRequest
+	(*GetListVersionRequest)(nil),  // 6: paker.v1.GetListVersionRequest
+	(*GetListVersionResponse)(nil), // 7: paker.v1.GetListVersionResponse
+	(*GetListResponse)(nil),        // 8: paker.v1.GetListResponse
+	(*SyncListRequest)(nil),        // 9: paker.v1.SyncListRequest
+	(*SyncListResponse)(nil),       // 10: paker.v1.SyncListResponse
 }
 var file_paker_v1_paker_proto_depIdxs = []int32{
-	0, // 0: paker.v1.Item.status:type_name -> paker.v1.Status
-	2, // 1: paker.v1.Item.quantity:type_name -> paker.v1.Quantity
-	1, // 2: paker.v1.Category.items:type_name -> paker.v1.Item
-	3, // 3: paker.v1.PackingList.categories:type_name -> paker.v1.Category
-	4, // 4: paker.v1.GetListResponse.list:type_name -> paker.v1.PackingList
-	4, // 5: paker.v1.SyncListRequest.list:type_name -> paker.v1.PackingList
-	4, // 6: paker.v1.SyncListResponse.list:type_name -> paker.v1.PackingList
-	5, // 7: paker.v1.PakerService.GetList:input_type -> paker.v1.GetListRequest
-	7, // 8: paker.v1.PakerService.SyncList:input_type -> paker.v1.SyncListRequest
-	6, // 9: paker.v1.PakerService.GetList:output_type -> paker.v1.GetListResponse
-	8, // 10: paker.v1.PakerService.SyncList:output_type -> paker.v1.SyncListResponse
-	9, // [9:11] is the sub-list for method output_type
-	7, // [7:9] is the sub-list for method input_type
-	7, // [7:7] is the sub-list for extension type_name
-	7, // [7:7] is the sub-list for extension extendee
-	0, // [0:7] is the sub-list for field type_name
+	0,  // 0: paker.v1.Item.status:type_name -> paker.v1.Status
+	2,  // 1: paker.v1.Item.quantity:type_name -> paker.v1.Quantity
+	1,  // 2: paker.v1.Category.items:type_name -> paker.v1.Item
+	3,  // 3: paker.v1.PackingList.categories:type_name -> paker.v1.Category
+	4,  // 4: paker.v1.GetListResponse.list:type_name -> paker.v1.PackingList
+	4,  // 5: paker.v1.SyncListRequest.list:type_name -> paker.v1.PackingList
+	4,  // 6: paker.v1.SyncListResponse.list:type_name -> paker.v1.PackingList
+	5,  // 7: paker.v1.PakerService.GetList:input_type -> paker.v1.GetListRequest
+	6,  // 8: paker.v1.PakerService.GetListVersion:input_type -> paker.v1.GetListVersionRequest
+	9,  // 9: paker.v1.PakerService.SyncList:input_type -> paker.v1.SyncListRequest
+	8,  // 10: paker.v1.PakerService.GetList:output_type -> paker.v1.GetListResponse
+	7,  // 11: paker.v1.PakerService.GetListVersion:output_type -> paker.v1.GetListVersionResponse
+	10, // 12: paker.v1.PakerService.SyncList:output_type -> paker.v1.SyncListResponse
+	10, // [10:13] is the sub-list for method output_type
+	7,  // [7:10] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_paker_v1_paker_proto_init() }
@@ -635,7 +734,7 @@ func file_paker_v1_paker_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_paker_v1_paker_proto_rawDesc), len(file_paker_v1_paker_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   8,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

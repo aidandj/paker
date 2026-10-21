@@ -56,6 +56,27 @@ func local_request_PakerService_GetList_0(ctx context.Context, marshaler runtime
 	return msg, metadata, err
 }
 
+func request_PakerService_GetListVersion_0(ctx context.Context, marshaler runtime.Marshaler, client PakerServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq GetListVersionRequest
+		metadata runtime.ServerMetadata
+	)
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	msg, err := client.GetListVersion(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_PakerService_GetListVersion_0(ctx context.Context, marshaler runtime.Marshaler, server PakerServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq GetListVersionRequest
+		metadata runtime.ServerMetadata
+	)
+	msg, err := server.GetListVersion(ctx, &protoReq)
+	return msg, metadata, err
+}
+
 func request_PakerService_SyncList_0(ctx context.Context, marshaler runtime.Marshaler, client PakerServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq SyncListRequest
@@ -108,6 +129,26 @@ func RegisterPakerServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 			return
 		}
 		forward_PakerService_GetList_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodGet, pattern_PakerService_GetListVersion_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/paker.v1.PakerService/GetListVersion", runtime.WithHTTPPathPattern("/api/v1/list:version"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_PakerService_GetListVersion_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_PakerService_GetListVersion_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	mux.Handle(http.MethodPost, pattern_PakerService_SyncList_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -186,6 +227,23 @@ func RegisterPakerServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 		}
 		forward_PakerService_GetList_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodGet, pattern_PakerService_GetListVersion_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/paker.v1.PakerService/GetListVersion", runtime.WithHTTPPathPattern("/api/v1/list:version"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_PakerService_GetListVersion_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_PakerService_GetListVersion_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodPost, pattern_PakerService_SyncList_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -207,11 +265,13 @@ func RegisterPakerServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 }
 
 var (
-	pattern_PakerService_GetList_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "list"}, ""))
-	pattern_PakerService_SyncList_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "list"}, "sync"))
+	pattern_PakerService_GetList_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "list"}, ""))
+	pattern_PakerService_GetListVersion_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "list"}, "version"))
+	pattern_PakerService_SyncList_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "v1", "list"}, "sync"))
 )
 
 var (
-	forward_PakerService_GetList_0  = runtime.ForwardResponseMessage
-	forward_PakerService_SyncList_0 = runtime.ForwardResponseMessage
+	forward_PakerService_GetList_0        = runtime.ForwardResponseMessage
+	forward_PakerService_GetListVersion_0 = runtime.ForwardResponseMessage
+	forward_PakerService_SyncList_0       = runtime.ForwardResponseMessage
 )

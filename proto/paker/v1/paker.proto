@@ -55,6 +55,13 @@ message PackingList {
 
 message GetListRequest {}
 
+message GetListVersionRequest {}
+
+message GetListVersionResponse {
+  // Changes whenever the stored list changes. Clients poll this and sync only when it differs.
+  string version = 1;
+}
+
 message GetListResponse {
   PackingList list = 1;
 }
@@ -67,12 +74,18 @@ message SyncListRequest {
 message SyncListResponse {
   // The stored list after merging in the request. The device should replace its copy with this.
   PackingList list = 1;
+  // Version of that list, for comparison with GetListVersion.
+  string version = 2;
 }
 
 service PakerService {
   // Returns the stored list without changing it.
   rpc GetList(GetListRequest) returns (GetListResponse) {
     option (google.api.http) = {get: "/api/v1/list"};
+  }
+  // Cheap poll: the current list version, so a client can tell whether a sync is needed.
+  rpc GetListVersion(GetListVersionRequest) returns (GetListVersionResponse) {
+    option (google.api.http) = {get: "/api/v1/list:version"};
   }
   // Merges the device's list into the stored one (newest change per item wins) and returns the result.
   rpc SyncList(SyncListRequest) returns (SyncListResponse) {

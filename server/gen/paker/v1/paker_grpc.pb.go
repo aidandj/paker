@@ -19,8 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	PakerService_GetList_FullMethodName  = "/paker.v1.PakerService/GetList"
-	PakerService_SyncList_FullMethodName = "/paker.v1.PakerService/SyncList"
+	PakerService_GetList_FullMethodName        = "/paker.v1.PakerService/GetList"
+	PakerService_GetListVersion_FullMethodName = "/paker.v1.PakerService/GetListVersion"
+	PakerService_SyncList_FullMethodName       = "/paker.v1.PakerService/SyncList"
 )
 
 // PakerServiceClient is the client API for PakerService service.
@@ -29,6 +30,8 @@ const (
 type PakerServiceClient interface {
 	// Returns the stored list without changing it.
 	GetList(ctx context.Context, in *GetListRequest, opts ...grpc.CallOption) (*GetListResponse, error)
+	// Cheap poll: the current list version, so a client can tell whether a sync is needed.
+	GetListVersion(ctx context.Context, in *GetListVersionRequest, opts ...grpc.CallOption) (*GetListVersionResponse, error)
 	// Merges the device's list into the stored one (newest change per item wins) and returns the result.
 	SyncList(ctx context.Context, in *SyncListRequest, opts ...grpc.CallOption) (*SyncListResponse, error)
 }
@@ -51,6 +54,16 @@ func (c *pakerServiceClient) GetList(ctx context.Context, in *GetListRequest, op
 	return out, nil
 }
 
+func (c *pakerServiceClient) GetListVersion(ctx context.Context, in *GetListVersionRequest, opts ...grpc.CallOption) (*GetListVersionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetListVersionResponse)
+	err := c.cc.Invoke(ctx, PakerService_GetListVersion_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *pakerServiceClient) SyncList(ctx context.Context, in *SyncListRequest, opts ...grpc.CallOption) (*SyncListResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(SyncListResponse)
@@ -67,6 +80,8 @@ func (c *pakerServiceClient) SyncList(ctx context.Context, in *SyncListRequest, 
 type PakerServiceServer interface {
 	// Returns the stored list without changing it.
 	GetList(context.Context, *GetListRequest) (*GetListResponse, error)
+	// Cheap poll: the current list version, so a client can tell whether a sync is needed.
+	GetListVersion(context.Context, *GetListVersionRequest) (*GetListVersionResponse, error)
 	// Merges the device's list into the stored one (newest change per item wins) and returns the result.
 	SyncList(context.Context, *SyncListRequest) (*SyncListResponse, error)
 	mustEmbedUnimplementedPakerServiceServer()
@@ -81,6 +96,9 @@ type UnimplementedPakerServiceServer struct{}
 
 func (UnimplementedPakerServiceServer) GetList(context.Context, *GetListRequest) (*GetListResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetList not implemented")
+}
+func (UnimplementedPakerServiceServer) GetListVersion(context.Context, *GetListVersionRequest) (*GetListVersionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetListVersion not implemented")
 }
 func (UnimplementedPakerServiceServer) SyncList(context.Context, *SyncListRequest) (*SyncListResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method SyncList not implemented")
@@ -124,6 +142,24 @@ func _PakerService_GetList_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PakerService_GetListVersion_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetListVersionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PakerServiceServer).GetListVersion(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PakerService_GetListVersion_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PakerServiceServer).GetListVersion(ctx, req.(*GetListVersionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _PakerService_SyncList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SyncListRequest)
 	if err := dec(in); err != nil {
@@ -152,6 +188,10 @@ var PakerService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetList",
 			Handler:    _PakerService_GetList_Handler,
+		},
+		{
+			MethodName: "GetListVersion",
+			Handler:    _PakerService_GetListVersion_Handler,
 		},
 		{
 			MethodName: "SyncList",

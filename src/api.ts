@@ -3,6 +3,7 @@
 import { create, fromJson, type JsonValue, toJson } from '@bufbuild/protobuf';
 import {
   GetListResponseSchema,
+  GetListVersionResponseSchema,
   type PackingList as PbPackingList,
   PackingListSchema,
   Status as PbStatus,
@@ -73,10 +74,20 @@ export function fromProto(pb: PbPackingList | undefined, local: PackingList): Pa
 }
 
 /** Push the local list; the server merges it and returns the result, which replaces the local list. */
-export async function syncList(config: ServerConfig, list: PackingList): Promise<PackingList> {
+export async function syncList(
+  config: ServerConfig,
+  list: PackingList,
+): Promise<{ list: PackingList; version: string }> {
   const body = toJson(SyncListRequestSchema, create(SyncListRequestSchema, { list: toProto(list) }));
   const json = await request(config, '/api/v1/list:sync', { method: 'POST', body: JSON.stringify(body) });
-  return fromProto(fromJson(SyncListResponseSchema, json).list, list);
+  const reply = fromJson(SyncListResponseSchema, json);
+  return { list: fromProto(reply.list, list), version: reply.version };
+}
+
+/** Cheap poll: a hash of the server's list. When it differs from the last sync, sync again. */
+export async function getListVersion(config: ServerConfig): Promise<string> {
+  const json = await request(config, '/api/v1/list:version', { method: 'GET' });
+  return fromJson(GetListVersionResponseSchema, json).version;
 }
 
 /** Fetch the server's list without sending anything. Used when a device first connects. */

@@ -11,7 +11,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file paker/v1/paker.proto.
  */
 export const file_paker_v1_paker: GenFile = /*@__PURE__*/
-  fileDesc("ChRwYWtlci92MS9wYWtlci5wcm90bxIIcGFrZXIudjEiogEKBEl0ZW0SCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCRIgCgZzdGF0dXMYAyABKA4yEC5wYWtlci52MS5TdGF0dXMSEgoKdXBkYXRlZF9hdBgEIAEoAxIPCgdkZWxldGVkGAUgASgIEiQKCHF1YW50aXR5GAYgASgLMhIucGFrZXIudjEuUXVhbnRpdHkSEwoLYWx3YXlzX3BhY2sYByABKAgiKgoIUXVhbnRpdHkSDgoGbmVlZGVkGAEgASgFEg4KBnBhY2tlZBgCIAEoBSJ9CghDYXRlZ29yeRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEhMKC2Fsd2F5c19wYWNrGAMgASgIEhIKCnVwZGF0ZWRfYXQYBCABKAMSDwoHZGVsZXRlZBgFIAEoCBIdCgVpdGVtcxgGIAMoCzIOLnBha2VyLnYxLkl0ZW0iNQoLUGFja2luZ0xpc3QSJgoKY2F0ZWdvcmllcxgBIAMoCzISLnBha2VyLnYxLkNhdGVnb3J5IhAKDkdldExpc3RSZXF1ZXN0IjYKD0dldExpc3RSZXNwb25zZRIjCgRsaXN0GAEgASgLMhUucGFrZXIudjEuUGFja2luZ0xpc3QiNgoPU3luY0xpc3RSZXF1ZXN0EiMKBGxpc3QYASABKAsyFS5wYWtlci52MS5QYWNraW5nTGlzdCI3ChBTeW5jTGlzdFJlc3BvbnNlEiMKBGxpc3QYASABKAsyFS5wYWtlci52MS5QYWNraW5nTGlzdCp3CgZTdGF0dXMSFgoSU1RBVFVTX1VOU1BFQ0lGSUVEEAASFQoRU1RBVFVTX05PVF9QQUNLRUQQARISCg5TVEFUVVNfUExBTk5FRBACEhEKDVNUQVRVU19QQUNLRUQQAxIXChNTVEFUVVNfTkVFRFNfUkVGSUxMEAQyxQEKDFBha2VyU2VydmljZRJUCgdHZXRMaXN0EhgucGFrZXIudjEuR2V0TGlzdFJlcXVlc3QaGS5wYWtlci52MS5HZXRMaXN0UmVzcG9uc2UiFILT5JMCDhIML2FwaS92MS9saXN0El8KCFN5bmNMaXN0EhkucGFrZXIudjEuU3luY0xpc3RSZXF1ZXN0GhoucGFrZXIudjEuU3luY0xpc3RSZXNwb25zZSIcgtPkkwIWOgEqIhEvYXBpL3YxL2xpc3Q6c3luY0J+Cgxjb20ucGFrZXIudjFCClBha2VyUHJvdG9QAVohcGFrZXIvc2VydmVyL2dlbi9wYWtlci92MTtwYWtlcnYxogIDUFhYqgIIUGFrZXIuVjHKAghQYWtlclxWMeICFFBha2VyXFYxXEdQQk1ldGFkYXRh6gIJUGFrZXI6OlYxYgZwcm90bzM", [file_google_api_annotations]);
+  fileDesc("ChRwYWtlci92MS9wYWtlci5wcm90bxIIcGFrZXIudjEiogEKBEl0ZW0SCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCRIgCgZzdGF0dXMYAyABKA4yEC5wYWtlci52MS5TdGF0dXMSEgoKdXBkYXRlZF9hdBgEIAEoAxIPCgdkZWxldGVkGAUgASgIEiQKCHF1YW50aXR5GAYgASgLMhIucGFrZXIudjEuUXVhbnRpdHkSEwoLYWx3YXlzX3BhY2sYByABKAgiKgoIUXVhbnRpdHkSDgoGbmVlZGVkGAEgASgFEg4KBnBhY2tlZBgCIAEoBSJ9CghDYXRlZ29yeRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEhMKC2Fsd2F5c19wYWNrGAMgASgIEhIKCnVwZGF0ZWRfYXQYBCABKAMSDwoHZGVsZXRlZBgFIAEoCBIdCgVpdGVtcxgGIAMoCzIOLnBha2VyLnYxLkl0ZW0iNQoLUGFja2luZ0xpc3QSJgoKY2F0ZWdvcmllcxgBIAMoCzISLnBha2VyLnYxLkNhdGVnb3J5IhAKDkdldExpc3RSZXF1ZXN0IhcKFUdldExpc3RWZXJzaW9uUmVxdWVzdCIpChZHZXRMaXN0VmVyc2lvblJlc3BvbnNlEg8KB3ZlcnNpb24YASABKAkiNgoPR2V0TGlzdFJlc3BvbnNlEiMKBGxpc3QYASABKAsyFS5wYWtlci52MS5QYWNraW5nTGlzdCI2Cg9TeW5jTGlzdFJlcXVlc3QSIwoEbGlzdBgBIAEoCzIVLnBha2VyLnYxLlBhY2tpbmdMaXN0IkgKEFN5bmNMaXN0UmVzcG9uc2USIwoEbGlzdBgBIAEoCzIVLnBha2VyLnYxLlBhY2tpbmdMaXN0Eg8KB3ZlcnNpb24YAiABKAkqdwoGU3RhdHVzEhYKElNUQVRVU19VTlNQRUNJRklFRBAAEhUKEVNUQVRVU19OT1RfUEFDS0VEEAESEgoOU1RBVFVTX1BMQU5ORUQQAhIRCg1TVEFUVVNfUEFDS0VEEAMSFwoTU1RBVFVTX05FRURTX1JFRklMTBAEMrgCCgxQYWtlclNlcnZpY2USVAoHR2V0TGlzdBIYLnBha2VyLnYxLkdldExpc3RSZXF1ZXN0GhkucGFrZXIudjEuR2V0TGlzdFJlc3BvbnNlIhSC0+STAg4SDC9hcGkvdjEvbGlzdBJxCg5HZXRMaXN0VmVyc2lvbhIfLnBha2VyLnYxLkdldExpc3RWZXJzaW9uUmVxdWVzdBogLnBha2VyLnYxLkdldExpc3RWZXJzaW9uUmVzcG9uc2UiHILT5JMCFhIUL2FwaS92MS9saXN0OnZlcnNpb24SXwoIU3luY0xpc3QSGS5wYWtlci52MS5TeW5jTGlzdFJlcXVlc3QaGi5wYWtlci52MS5TeW5jTGlzdFJlc3BvbnNlIhyC0+STAhY6ASoiES9hcGkvdjEvbGlzdDpzeW5jQn4KDGNvbS5wYWtlci52MUIKUGFrZXJQcm90b1ABWiFwYWtlci9zZXJ2ZXIvZ2VuL3Bha2VyL3YxO3Bha2VydjGiAgNQWFiqAghQYWtlci5WMcoCCFBha2VyXFYx4gIUUGFrZXJcVjFcR1BCTWV0YWRhdGHqAglQYWtlcjo6VjFiBnByb3RvMw", [file_google_api_annotations]);
 
 /**
  * @generated from message paker.v1.Item
@@ -299,6 +299,56 @@ export const GetListRequestSchema: GenMessage<GetListRequest, {jsonType: GetList
   messageDesc(file_paker_v1_paker, 4);
 
 /**
+ * @generated from message paker.v1.GetListVersionRequest
+ */
+export type GetListVersionRequest = Message<"paker.v1.GetListVersionRequest"> & {
+};
+
+/**
+ * @generated from message paker.v1.GetListVersionRequest
+ */
+export type GetListVersionRequestJson = {
+};
+
+/**
+ * Describes the message paker.v1.GetListVersionRequest.
+ * Use `create(GetListVersionRequestSchema)` to create a new message.
+ */
+export const GetListVersionRequestSchema: GenMessage<GetListVersionRequest, {jsonType: GetListVersionRequestJson}> = /*@__PURE__*/
+  messageDesc(file_paker_v1_paker, 5);
+
+/**
+ * @generated from message paker.v1.GetListVersionResponse
+ */
+export type GetListVersionResponse = Message<"paker.v1.GetListVersionResponse"> & {
+  /**
+   * Changes whenever the stored list changes. Clients poll this and sync only when it differs.
+   *
+   * @generated from field: string version = 1;
+   */
+  version: string;
+};
+
+/**
+ * @generated from message paker.v1.GetListVersionResponse
+ */
+export type GetListVersionResponseJson = {
+  /**
+   * Changes whenever the stored list changes. Clients poll this and sync only when it differs.
+   *
+   * @generated from field: string version = 1;
+   */
+  version?: string;
+};
+
+/**
+ * Describes the message paker.v1.GetListVersionResponse.
+ * Use `create(GetListVersionResponseSchema)` to create a new message.
+ */
+export const GetListVersionResponseSchema: GenMessage<GetListVersionResponse, {jsonType: GetListVersionResponseJson}> = /*@__PURE__*/
+  messageDesc(file_paker_v1_paker, 6);
+
+/**
  * @generated from message paker.v1.GetListResponse
  */
 export type GetListResponse = Message<"paker.v1.GetListResponse"> & {
@@ -323,7 +373,7 @@ export type GetListResponseJson = {
  * Use `create(GetListResponseSchema)` to create a new message.
  */
 export const GetListResponseSchema: GenMessage<GetListResponse, {jsonType: GetListResponseJson}> = /*@__PURE__*/
-  messageDesc(file_paker_v1_paker, 5);
+  messageDesc(file_paker_v1_paker, 7);
 
 /**
  * @generated from message paker.v1.SyncListRequest
@@ -354,7 +404,7 @@ export type SyncListRequestJson = {
  * Use `create(SyncListRequestSchema)` to create a new message.
  */
 export const SyncListRequestSchema: GenMessage<SyncListRequest, {jsonType: SyncListRequestJson}> = /*@__PURE__*/
-  messageDesc(file_paker_v1_paker, 6);
+  messageDesc(file_paker_v1_paker, 8);
 
 /**
  * @generated from message paker.v1.SyncListResponse
@@ -366,6 +416,13 @@ export type SyncListResponse = Message<"paker.v1.SyncListResponse"> & {
    * @generated from field: paker.v1.PackingList list = 1;
    */
   list?: PackingList | undefined;
+
+  /**
+   * Version of that list, for comparison with GetListVersion.
+   *
+   * @generated from field: string version = 2;
+   */
+  version: string;
 };
 
 /**
@@ -378,6 +435,13 @@ export type SyncListResponseJson = {
    * @generated from field: paker.v1.PackingList list = 1;
    */
   list?: PackingListJson;
+
+  /**
+   * Version of that list, for comparison with GetListVersion.
+   *
+   * @generated from field: string version = 2;
+   */
+  version?: string;
 };
 
 /**
@@ -385,7 +449,7 @@ export type SyncListResponseJson = {
  * Use `create(SyncListResponseSchema)` to create a new message.
  */
 export const SyncListResponseSchema: GenMessage<SyncListResponse, {jsonType: SyncListResponseJson}> = /*@__PURE__*/
-  messageDesc(file_paker_v1_paker, 7);
+  messageDesc(file_paker_v1_paker, 9);
 
 /**
  * Status of one item on the packing list.
@@ -445,6 +509,16 @@ export const PakerService: GenService<{
     methodKind: "unary";
     input: typeof GetListRequestSchema;
     output: typeof GetListResponseSchema;
+  },
+  /**
+   * Cheap poll: the current list version, so a client can tell whether a sync is needed.
+   *
+   * @generated from rpc paker.v1.PakerService.GetListVersion
+   */
+  getListVersion: {
+    methodKind: "unary";
+    input: typeof GetListVersionRequestSchema;
+    output: typeof GetListVersionResponseSchema;
   },
   /**
    * Merges the device's list into the stored one (newest change per item wins) and returns the result.

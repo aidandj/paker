@@ -1,16 +1,16 @@
 // Keeps the local list in step with the server: after every change (debounced), on launch, when the
-// app returns to the foreground, and by polling every POLL_MS while it is in the foreground (so
-// changes made on another device show up without any push infrastructure). Each sync sends the
-// whole list and adopts the merged reply.
+// app returns to the foreground, and by polling the list version every POLL_MS while in the
+// foreground (a tiny request; a full sync only runs when the version changed). So changes made on
+// another device show up within seconds without any push infrastructure.
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState } from 'react-native';
-import { getList, ServerConfig, syncList } from './api';
+import { getList, getListVersion, ServerConfig, syncList } from './api';
 import { PackingList } from './types';
 
 const CONFIG_KEY = 'paker.server.v1';
 const DEBOUNCE_MS = 500;
-const POLL_MS = 15_000;
+const POLL_MS = 3_000;
 
 export type SyncStatus = 'off' | 'syncing' | 'synced' | 'error';
 
@@ -40,6 +40,7 @@ export function useSync(list: PackingList | null, setList: (l: PackingList) => v
   const pending = useRef(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSeen = useRef<PackingList | null>(null); // last list the change effect looked at
+  const version = useRef<string | null>(null); // server version after our last sync
 
   useEffect(() => {
     loadConfig().then((c) => {
@@ -58,11 +59,12 @@ export function useSync(list: PackingList | null, setList: (l: PackingList) => v
     running.current = true;
     setStatus('syncing');
     try {
-      const merged = await syncList(config, sent);
+      const reply = await syncList(config, sent);
+      version.current = reply.version;
       // If the user edited while the request was in flight, drop this reply; the next sync carries both.
       if (listRef.current === sent) {
-        adopted.current = merged;
-        setList(merged);
+        adopted.current = reply.list;
+        setList(reply.list);
       } else {
         pending.current = true;
       }
@@ -98,9 +100,17 @@ export function useSync(list: PackingList | null, setList: (l: PackingList) => v
   useEffect(() => {
     if (!config) return;
     let poll: ReturnType<typeof setInterval> | null = null;
+    const check = async () => {
+      if (running.current) return;
+      try {
+        if ((await getListVersion(config)) !== version.current) await syncNow();
+      } catch {
+        setStatus('error');
+      }
+    };
     const start = () => {
       void syncNow();
-      if (!poll) poll = setInterval(() => void syncNow(), POLL_MS);
+      if (!poll) poll = setInterval(() => void check(), POLL_MS);
     };
     const stop = () => {
       if (poll) clearInterval(poll);

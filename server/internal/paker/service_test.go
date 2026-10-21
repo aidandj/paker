@@ -75,6 +75,20 @@ func TestJSONRoundTrip(t *testing.T) {
 	}
 }
 
+func TestVersionChangesWithContent(t *testing.T) {
+	h := newHTTP(t)
+	v0 := call(h, "GET", "/api/v1/list:version", "", true).Body.String()
+	call(h, "POST", "/api/v1/list:sync", `{"list":{"categories":[{"id":"c","name":"C","updatedAt":"1","items":[]}]}}`, true)
+	v1 := call(h, "GET", "/api/v1/list:version", "", true).Body.String()
+	v1again := call(h, "GET", "/api/v1/list:version", "", true).Body.String()
+	if v0 == v1 || v1 != v1again || !strings.Contains(v1, `"version":"`) {
+		t.Fatalf("v0=%s v1=%s again=%s", v0, v1, v1again)
+	}
+	if !strings.Contains(call(h, "POST", "/api/v1/list:sync", `{"list":{}}`, true).Body.String(), `"version":"`) {
+		t.Fatal("sync response should carry the version")
+	}
+}
+
 func TestBadJSON(t *testing.T) {
 	h := newHTTP(t)
 	if rec := call(h, "POST", "/api/v1/list:sync", "{not json", true); rec.Code != 400 {
