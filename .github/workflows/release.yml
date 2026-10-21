@@ -45,7 +45,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
-          name: ipa
+          name: paker-${{ needs.version.outputs.version }}-ipa
           path: ipa
       - run: node scripts/altstore-source.js ipa/*.ipa "${{ needs.version.outputs.version }}" web-extra
       - uses: docker/setup-qemu-action@v3
@@ -64,6 +64,8 @@ jobs:
             type=raw,value=${{ needs.version.outputs.tag }}
             type=raw,value=${{ needs.version.outputs.version }}
       - uses: docker/build-push-action@v6
+        env:
+          DOCKER_BUILD_RECORD_UPLOAD: "false"   # no *.dockerbuild artifacts
         with:
           context: .
           file: server/Dockerfile
@@ -102,12 +104,12 @@ jobs:
       - run: cp android/app/build/outputs/apk/release/app-release.apk paker-${{ needs.version.outputs.version }}.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: apk
+          name: paker-${{ needs.version.outputs.version }}-apk
           path: paker-*.apk
 
   ios:
     needs: version
-    runs-on: macos-15
+    runs-on: macos-26   # Xcode 26, which Expo SDK 58 needs
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -123,15 +125,22 @@ jobs:
       - run: npx expo prebuild --platform ios
         env:
           CI: 1
-      # Unsigned build: no Apple certificates in CI. Sign it yourself (Sideloadly, AltStore, Xcode) to install.
-      - run: |
+      # Unsigned build: no Apple certificates in CI. AltStore/SideStore/Sideloadly sign it on install.
+      - name: Build (unsigned)
+        run: |
           xcodebuild -workspace ios/paker.xcworkspace -scheme paker -configuration Release -sdk iphoneos \
-            -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build | tail -20
-          mkdir Payload && cp -r build/Build/Products/Release-iphoneos/paker.app Payload/
+            -destination 'generic/platform=iOS' -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build > xcodebuild.log 2>&1 \
+            || { grep -E "error:|BUILD FAILED" xcodebuild.log | head -40; tail -40 xcodebuild.log; exit 1; }
+      - name: Package .ipa
+        run: |
+          mkdir Payload
+          cp -r build/Build/Products/Release-iphoneos/paker.app Payload/
           zip -qr paker-${{ needs.version.outputs.version }}-unsigned.ipa Payload
+          ls -la paker-*.ipa
       - uses: actions/upload-artifact@v4
         with:
-          name: ipa
+          name: paker-${{ needs.version.outputs.version }}-ipa
           path: paker-*.ipa
 
   release:
@@ -141,6 +150,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
+          pattern: paker-*
           path: dist
           merge-multiple: true
       # Creates the tag (it does not exist yet) and the release, with auto-generated notes.
