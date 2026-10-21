@@ -257,6 +257,18 @@ function Main() {
             ],
           });
         }}
+        onOverwrite={(tripId) => {
+          const trip = list.trips.find((t) => t.id === tripId);
+          setTripsOpen(false);
+          setChoice({
+            title: `Overwrite "${trip?.name}"?`,
+            message: 'The trip will be replaced with the current plan: which items go and how many.',
+            choices: [
+              { text: 'Cancel', style: 'cancel' },
+              { text: 'Overwrite', style: 'destructive', onPress: () => update((l) => m.overwriteTrip(l, tripId)) },
+            ],
+          });
+        }}
         onDelete={(tripId) => {
           const trip = list.trips.find((t) => t.id === tripId);
           setTripsOpen(false);

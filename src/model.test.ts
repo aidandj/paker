@@ -212,6 +212,10 @@ test('a trip is a plan: save captures on-trip items and counts, load restarts pa
   list = m.saveTrip(list, 'seattle'); // same name, any case: overwrite
   assert.equal(m.live(list.trips).length, 1);
   assert.equal(list.trips[0].id, trip.id);
+  list = m.tapItem(list, 'clothes-socks'); // socks now on the trip
+  list = m.overwriteTrip(list, trip.id);
+  assert.equal(list.trips[0].name, 'Seattle');
+  assert.equal(list.trips[0].items.find((s) => s.itemId === 'clothes-socks')!.status, 'planned');
   list = m.deleteTrip(list, trip.id);
   assert.equal(m.live(list.trips).length, 0);
 });

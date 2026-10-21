@@ -198,19 +198,29 @@ export function startNewTrip(list: PackingList): PackingList {
 // A trip is a plan laid over the one base set of items: which items go and how many. It never
 // records packing progress, so loading one always starts a fresh packing round.
 
-/** Save the current plan under a name (anything not "Not packed" is on the trip). Same name overwrites. */
-export function saveTrip(list: PackingList, name: string): PackingList {
-  const items: ItemState[] = live(list.categories).flatMap((c) =>
+/** The current plan as trip item states (anything not "Not packed" is on the trip). */
+function currentPlan(list: PackingList): ItemState[] {
+  return live(list.categories).flatMap((c) =>
     live(c.items).map((i) => ({
       itemId: i.id,
       status: i.status === 'not_packed' ? 'not_packed' : 'planned',
       ...(i.quantity ? { quantity: { needed: i.quantity.needed, packed: 0 } } : {}),
     })),
   );
+}
+
+/** Save the current plan under a name. Same name (any case) overwrites that trip. */
+export function saveTrip(list: PackingList, name: string): PackingList {
   const existing = live(list.trips).find((t) => t.name.toLowerCase() === name.toLowerCase());
-  const trip: SavedTrip = { id: existing?.id ?? newId(), name, updatedAt: now(), items };
-  const trips = existing ? list.trips.map((t) => (t.id === existing.id ? trip : t)) : [...list.trips, trip];
-  return { ...list, trips };
+  if (existing) return overwriteTrip(list, existing.id);
+  const trip: SavedTrip = { id: newId(), name, updatedAt: now(), items: currentPlan(list) };
+  return { ...list, trips: [...list.trips, trip] };
+}
+
+/** Replace an existing trip's plan with the current one, keeping its name. */
+export function overwriteTrip(list: PackingList, tripId: string): PackingList {
+  const items = currentPlan(list);
+  return { ...list, trips: list.trips.map((t) => (t.id === tripId ? { ...t, items, updatedAt: now() } : t)) };
 }
 
 /**

@@ -7,12 +7,14 @@ interface Props {
   trips: SavedTrip[];
   onSave: () => void;
   onLoad: (tripId: string) => void;
+  /** Replace the trip's plan with the current one. */
+  onOverwrite: (tripId: string) => void;
   onDelete: (tripId: string) => void;
   onClose: () => void;
 }
 
 /** Saved trips: load one, delete one, or save the current list under a name. */
-export function TripsModal({ visible, trips, onSave, onLoad, onDelete, onClose }: Props) {
+export function TripsModal({ visible, trips, onSave, onLoad, onOverwrite, onDelete, onClose }: Props) {
   const styles = useStyles(makeStyles);
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -23,7 +25,7 @@ export function TripsModal({ visible, trips, onSave, onLoad, onDelete, onClose }
           <Text style={styles.empty}>
             {trips.length === 0
               ? 'No saved trips yet. A trip remembers which items go and how many.'
-              : 'A trip remembers which items go and how many. Saving with an existing name replaces it.'}
+              : 'A trip remembers which items go and how many. Overwrite replaces a trip with the current plan.'}
           </Text>
           <ScrollView style={styles.list}>
             {trips.map((t) => (
@@ -33,6 +35,9 @@ export function TripsModal({ visible, trips, onSave, onLoad, onDelete, onClose }
                 </Text>
                 <Pressable onPress={() => onDelete(t.id)} style={styles.button} hitSlop={6}>
                   <Text style={styles.delete}>Delete</Text>
+                </Pressable>
+                <Pressable onPress={() => onOverwrite(t.id)} style={styles.button} hitSlop={6}>
+                  <Text style={styles.secondary}>Overwrite</Text>
                 </Pressable>
                 <Pressable onPress={() => onLoad(t.id)} style={styles.button} hitSlop={6}>
                   <Text style={styles.load}>Load</Text>
@@ -65,7 +70,8 @@ const makeStyles = (t: Theme) =>
     row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: t.separator },
     name: { flex: 1, fontSize: 16, color: t.text },
     buttons: { flexDirection: 'row', alignItems: 'center', marginTop: 12, flexWrap: 'wrap' },
-    button: { paddingVertical: 8, paddingHorizontal: 10 },
+    button: { paddingVertical: 8, paddingHorizontal: 8 },
+    secondary: { fontSize: 15, color: t.muted, fontWeight: '600' },
     load: { fontSize: 16, color: t.accent, fontWeight: '600' },
     delete: { fontSize: 15, color: t.danger },
     cancel: { fontSize: 16, color: t.muted },
