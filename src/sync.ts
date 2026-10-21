@@ -1,5 +1,7 @@
-// Keeps the local list in step with the server: after every change (debounced), on launch and
-// when the app returns to the foreground. Each sync sends the whole list and adopts the merged reply.
+// Keeps the local list in step with the server: after every change (debounced), on launch, when the
+// app returns to the foreground, and by polling every POLL_MS while it is in the foreground (so
+// changes made on another device show up without any push infrastructure). Each sync sends the
+// whole list and adopts the merged reply.
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState } from 'react-native';
@@ -8,6 +10,7 @@ import { PackingList } from './types';
 
 const CONFIG_KEY = 'paker.server.v1';
 const DEBOUNCE_MS = 500;
+const POLL_MS = 15_000;
 
 export type SyncStatus = 'off' | 'syncing' | 'synced' | 'error';
 
@@ -90,14 +93,25 @@ export function useSync(list: PackingList | null, setList: (l: PackingList) => v
     };
   }, [list, config, syncNow]);
 
-  // Sync when the app comes to the foreground (and once when the config is first loaded).
+  // Sync when the config is first loaded, when the app comes to the foreground, and on a timer
+  // while it stays in the foreground.
   useEffect(() => {
     if (!config) return;
-    void syncNow();
-    const sub = AppState.addEventListener('change', (s) => {
-      if (s === 'active') void syncNow();
-    });
-    return () => sub.remove();
+    let poll: ReturnType<typeof setInterval> | null = null;
+    const start = () => {
+      void syncNow();
+      if (!poll) poll = setInterval(() => void syncNow(), POLL_MS);
+    };
+    const stop = () => {
+      if (poll) clearInterval(poll);
+      poll = null;
+    };
+    if (AppState.currentState === 'active' || AppState.currentState === 'unknown') start();
+    const sub = AppState.addEventListener('change', (s) => (s === 'active' ? start() : stop()));
+    return () => {
+      sub.remove();
+      stop();
+    };
   }, [config, syncNow]);
 
   /**
