@@ -121,15 +121,23 @@ export function countStatuses(category: Category): { packed: number; active: num
   return { packed, active };
 }
 
-/** Starter data for a fresh install so the app is not empty on first open. */
+/** Stable id for seed data: "seed-always-pack", "seed-always-pack-phone-charger". */
+export const seedId = (...parts: string[]) =>
+  ['seed', ...parts].map((p) => p.toLowerCase().replace(/[^a-z0-9]+/g, '-')).join('-');
+
+/**
+ * Starter data for a fresh install so the app is not empty on first open.
+ * Ids are deterministic and timestamps are 0, so when several devices each start from the seed
+ * and then sync, they merge into one set and the server's real data always wins over the seed.
+ */
 export function seedList(): PackingList {
   const mk = (name: string, alwaysPack: boolean, items: string[]): Category => ({
-    id: newId(),
+    id: seedId(name),
     name,
     alwaysPack,
     collapsed: false,
-    updatedAt: now(),
-    items: items.map((n) => ({ id: newId(), name: n, status: alwaysPack ? 'planned' : 'not_packed', updatedAt: now() })),
+    updatedAt: 0,
+    items: items.map((n) => ({ id: seedId(name, n), name: n, status: alwaysPack ? 'planned' : 'not_packed', updatedAt: 0 })),
   });
   return {
     mode: 'planning',

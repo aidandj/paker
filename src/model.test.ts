@@ -141,3 +141,12 @@ test('seedList has an always-pack category whose items start as planned', () => 
   assert.ok(always);
   assert.ok(always.items.every((i) => i.status === 'planned'));
 });
+
+test('seed ids are deterministic and seed timestamps are 0, so devices merge into one seed', () => {
+  const a = m.seedList();
+  const b = m.seedList();
+  assert.deepEqual(JSON.stringify(a), JSON.stringify(b));
+  assert.equal(a.categories[0].id, 'seed-always-pack');
+  assert.equal(a.categories[0].items[0].id, 'seed-always-pack-phone-charger');
+  assert.ok(a.categories.every((c) => c.updatedAt === 0 && c.items.every((i) => i.updatedAt === 0)));
+});
