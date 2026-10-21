@@ -7,6 +7,7 @@ interface Props {
   category: Category;
   mode: Mode;
   expandedItemId: string | null;
+  selectedIds: string[];
   menuOpen: boolean;
   onToggleCollapsed: () => void;
   onToggleMenu: () => void;
@@ -15,6 +16,7 @@ interface Props {
   onToggleAlwaysPack: () => void;
   onDelete: () => void;
   onTapItem: (itemId: string) => void;
+  onLongPressItem: (itemId: string) => void;
   onToggleItem: (itemId: string) => void;
   onSetItemStatus: (itemId: string, status: Status) => void;
   onRenameItem: (itemId: string) => void;
@@ -66,7 +68,10 @@ export function CategorySection(p: Props) {
             key={item.id}
             item={item}
             expanded={item.id === p.expandedItemId}
+            selecting={p.selectedIds.length > 0}
+            selected={p.selectedIds.includes(item.id)}
             onTap={() => p.onTapItem(item.id)}
+            onLongPress={() => p.onLongPressItem(item.id)}
             onToggleExpand={() => p.onToggleItem(item.id)}
             onSetStatus={(s) => p.onSetItemStatus(item.id, s)}
             onRename={() => p.onRenameItem(item.id)}

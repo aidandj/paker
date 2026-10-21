@@ -3,7 +3,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState } from 'react-native';
-import { ServerConfig, syncList } from './api';
+import { getList, ServerConfig, syncList } from './api';
 import { PackingList } from './types';
 
 const CONFIG_KEY = 'paker.server.v1';
@@ -100,12 +100,32 @@ export function useSync(list: PackingList | null, setList: (l: PackingList) => v
     return () => sub.remove();
   }, [config, syncNow]);
 
-  const setConfig = useCallback(async (c: ServerConfig | null) => {
-    await saveConfig(c);
-    setConfigState(c);
-    setStatus(c ? 'synced' : 'off');
-    setError(null);
-  }, []);
+  /**
+   * Save new server settings. Connecting to a server replaces the local list with the server's
+   * (nothing local is pushed), so a device's starter data never ends up on the server. Throws if
+   * the server cannot be reached, in which case nothing is saved.
+   */
+  const setConfig = useCallback(
+    async (c: ServerConfig | null) => {
+      if (c && listRef.current) {
+        setStatus('syncing');
+        try {
+          const remote = await getList(c, listRef.current);
+          adopted.current = remote;
+          lastSeen.current = remote;
+          setList(remote);
+        } catch (e) {
+          setStatus(config ? 'synced' : 'off');
+          throw e;
+        }
+      }
+      await saveConfig(c);
+      setConfigState(c);
+      setStatus(c ? 'synced' : 'off');
+      setError(null);
+    },
+    [config, setList],
+  );
 
   return { config, setConfig, status, error, syncNow };
 }

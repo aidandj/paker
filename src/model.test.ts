@@ -66,6 +66,11 @@ test('add, rename, set status, delete item', () => {
   assert.equal(m.live(list.categories[1].items).some((i) => i.id === hat.id), false);
 });
 
+test('deleteItems tombstones several items at once', () => {
+  const list = m.deleteItems(fixture(), ['clothes-shirt', 'clothes-socks']);
+  assert.deepEqual(m.live(list.categories[1].items).map((i) => i.name), ['pants', 'lotion']);
+});
+
 test('add, rename, toggle, delete category', () => {
   let list = m.addCategory(fixture(), 'Camping');
   const cat = list.categories.at(-1)!;

@@ -1,7 +1,8 @@
 // Talks to the Go server's JSON API (grpc-gateway transcoding of proto/paker/v1/paker.proto).
 // Messages are built and parsed with protobuf-es so the JSON matches the gateway exactly.
-import { create, fromJson, toJson } from '@bufbuild/protobuf';
+import { create, fromJson, type JsonValue, toJson } from '@bufbuild/protobuf';
 import {
+  GetListResponseSchema,
   type PackingList as PbPackingList,
   PackingListSchema,
   Status as PbStatus,
@@ -70,17 +71,26 @@ export function fromProto(pb: PbPackingList | undefined, local: PackingList): Pa
 /** Push the local list; the server merges it and returns the result, which replaces the local list. */
 export async function syncList(config: ServerConfig, list: PackingList): Promise<PackingList> {
   const body = toJson(SyncListRequestSchema, create(SyncListRequestSchema, { list: toProto(list) }));
-  const res = await fetch(`${config.url.replace(/\/+$/, '')}/api/v1/list:sync`, {
-    method: 'POST',
+  const json = await request(config, '/api/v1/list:sync', { method: 'POST', body: JSON.stringify(body) });
+  return fromProto(fromJson(SyncListResponseSchema, json).list, list);
+}
+
+/** Fetch the server's list without sending anything. Used when a device first connects. */
+export async function getList(config: ServerConfig, local: PackingList): Promise<PackingList> {
+  const json = await request(config, '/api/v1/list', { method: 'GET' });
+  return fromProto(fromJson(GetListResponseSchema, json).list, local);
+}
+
+async function request(config: ServerConfig, path: string, init: RequestInit): Promise<JsonValue> {
+  const res = await fetch(config.url.replace(/\/+$/, '') + path, {
+    ...init,
     headers: {
       'Content-Type': 'application/json',
       Authorization: 'Basic ' + base64(`${config.user}:${config.password}`),
     },
-    body: JSON.stringify(body),
   });
   if (!res.ok) throw new Error(`Server replied ${res.status}`);
-  const reply = fromJson(SyncListResponseSchema, await res.json());
-  return fromProto(reply.list, list);
+  return res.json();
 }
 
 // Hermes may not provide btoa; this handles UTF-8 as well.

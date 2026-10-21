@@ -83,6 +83,11 @@ export function deleteItem(list: PackingList, itemId: string): PackingList {
   return mapItems(list, (i) => (i.id === itemId ? { ...i, deleted: true, updatedAt: now() } : i));
 }
 
+export function deleteItems(list: PackingList, itemIds: string[]): PackingList {
+  const ids = new Set(itemIds);
+  return mapItems(list, (i) => (ids.has(i.id) ? { ...i, deleted: true, updatedAt: now() } : i));
+}
+
 export function setItemStatus(list: PackingList, itemId: string, status: Status): PackingList {
   return mapItems(list, (i) => (i.id === itemId && i.status !== status ? { ...i, status, updatedAt: now() } : i));
 }

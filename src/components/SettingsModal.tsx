@@ -8,7 +8,7 @@ interface Props {
   config: ServerConfig | null;
   status: SyncStatus;
   error: string | null;
-  onSave: (config: ServerConfig | null) => void;
+  onSave: (config: ServerConfig | null) => Promise<void>;
   onSyncNow: () => void;
   onClose: () => void;
 }
@@ -25,6 +25,8 @@ export function SettingsModal({ visible, config, status, error, onSave, onSyncNo
   const [url, setUrl] = useState('');
   const [user, setUser] = useState('');
   const [password, setPassword] = useState('');
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (!visible) return;
@@ -33,12 +35,20 @@ export function SettingsModal({ visible, config, status, error, onSave, onSyncNo
     setUrl(config?.url ?? defaultUrl);
     setUser(config?.user ?? '');
     setPassword(config?.password ?? '');
+    setSaveError(null);
   }, [visible, config]);
 
-  const save = () => {
+  const save = async () => {
     const u = url.trim();
-    onSave(u ? { url: u, user: user.trim(), password } : null);
-    onClose();
+    setSaving(true);
+    try {
+      await onSave(u ? { url: u, user: user.trim(), password } : null);
+      onClose();
+    } catch (e) {
+      setSaveError(`Could not connect: ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -51,6 +61,8 @@ export function SettingsModal({ visible, config, status, error, onSave, onSyncNo
             {STATUS_TEXT[status]}
             {status === 'error' && error ? ` ${error}` : ''}
           </Text>
+          <Text style={styles.note}>Connecting replaces this device's list with the server's.</Text>
+          {saveError && <Text style={styles.error}>{saveError}</Text>}
           <TextInput
             style={styles.input}
             value={url}
@@ -72,8 +84,8 @@ export function SettingsModal({ visible, config, status, error, onSave, onSyncNo
             <Pressable onPress={onClose} style={styles.button}>
               <Text style={styles.secondary}>Cancel</Text>
             </Pressable>
-            <Pressable onPress={save} style={styles.button}>
-              <Text style={styles.save}>Save</Text>
+            <Pressable onPress={save} style={styles.button} disabled={saving}>
+              <Text style={styles.save}>{saving ? 'Connecting…' : 'Save'}</Text>
             </Pressable>
           </View>
         </View>
@@ -86,7 +98,9 @@ const styles = StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', padding: 24 },
   card: { backgroundColor: 'white', borderRadius: 12, padding: 16 },
   title: { fontSize: 18, fontWeight: '600', marginBottom: 4 },
-  status: { fontSize: 13, color: '#666', marginBottom: 12 },
+  status: { fontSize: 13, color: '#666', marginBottom: 4 },
+  note: { fontSize: 12, color: '#999', marginBottom: 12 },
+  error: { fontSize: 13, color: '#EB5757', marginBottom: 8 },
   input: { borderWidth: 1, borderColor: '#CCC', borderRadius: 8, padding: 10, fontSize: 16, marginBottom: 8 },
   buttons: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
   button: { paddingVertical: 8, paddingHorizontal: 12 },

@@ -1,8 +1,9 @@
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { CategorySection } from './src/components/CategorySection';
+import { ChoiceModal, ChoiceRequest } from './src/components/ChoiceModal';
 import { NameModal, NameRequest } from './src/components/NameModal';
 import { SettingsModal } from './src/components/SettingsModal';
 import * as m from './src/model';
@@ -30,6 +31,8 @@ function Main() {
   const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
   const [menuCategoryId, setMenuCategoryId] = useState<string | null>(null);
   const [nameRequest, setNameRequest] = useState<NameRequest | null>(null);
+  const [choice, setChoice] = useState<ChoiceRequest | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]); // non-empty = multi-select mode
   const [settingsOpen, setSettingsOpen] = useState(false);
   const loaded = useRef(false);
   const sync = useSync(list, setList);
@@ -57,21 +60,48 @@ function Main() {
 
   const update = (fn: (l: PackingList) => PackingList) => setList((l) => (l ? fn(l) : l));
 
+  const toggleSelected = (itemId: string) =>
+    setSelectedIds((ids) => (ids.includes(itemId) ? ids.filter((id) => id !== itemId) : [...ids, itemId]));
+
+  const deleteSelected = () =>
+    setChoice({
+      title: `Delete ${selectedIds.length} item${selectedIds.length === 1 ? '' : 's'}?`,
+      choices: [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            update((l) => m.deleteItems(l, selectedIds));
+            setSelectedIds([]);
+          },
+        },
+      ],
+    });
+
   const findItemName = (itemId: string) =>
     list.categories.flatMap((c) => c.items).find((i) => i.id === itemId)?.name ?? '';
 
   const confirmDelete = (what: string, onConfirm: () => void) =>
-    Alert.alert(`Delete ${what}?`, undefined, [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: onConfirm },
-    ]);
+    setChoice({
+      title: `Delete ${what}?`,
+      choices: [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Delete', style: 'destructive', onPress: onConfirm },
+      ],
+    });
 
   const showResetMenu = () =>
-    Alert.alert('Reset', 'Packed items go back to "Plan to pack". With "New trip", everything is cleared except "always pack" categories. Items that need a refill are kept either way.', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Unpack all', onPress: () => update(m.unpackAll) },
-      { text: 'New trip', style: 'destructive', onPress: () => update(m.startNewTrip) },
-    ]);
+    setChoice({
+      title: 'Reset',
+      message:
+        'Unpack all: packed items go back to "Plan to pack". New trip: everything is cleared except "always pack" categories. Items that need a refill are kept either way.',
+      choices: [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Unpack all', onPress: () => update(m.unpackAll) },
+        { text: 'New trip', style: 'destructive', onPress: () => update(m.startNewTrip) },
+      ],
+    });
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
@@ -88,6 +118,18 @@ function Main() {
           </Pressable>
         </View>
       </View>
+      {selectedIds.length > 0 ? (
+        <View style={styles.selectBar}>
+          <Text style={styles.selectText}>{selectedIds.length} selected</Text>
+          <View style={{ flex: 1 }} />
+          <Pressable onPress={() => setSelectedIds([])} style={styles.topButton}>
+            <Text style={styles.topButtonText}>Cancel</Text>
+          </Pressable>
+          <Pressable onPress={deleteSelected} style={styles.topButton}>
+            <Text style={[styles.topButtonText, styles.deleteText]}>Delete</Text>
+          </Pressable>
+        </View>
+      ) : (
       <View style={styles.modeBar}>
         {MODES.map(({ key, label }) => {
           const active = list.mode === key;
@@ -102,10 +144,13 @@ function Main() {
           );
         })}
       </View>
+      )}
       <Text style={styles.hint}>
-        {list.mode === 'planning'
-          ? 'Tap an item to add it to or remove it from the trip.'
-          : 'Tap an item when it has been packed. Only planned items are shown.'}
+        {selectedIds.length > 0
+          ? 'Tap items to select them.'
+          : list.mode === 'planning'
+            ? 'Tap an item to add it to or remove it from the trip. Hold to select several.'
+            : 'Tap an item when it has been packed. Only planned items are shown.'}
       </Text>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         {m.live(list.categories).map((c) => (
@@ -114,6 +159,7 @@ function Main() {
             category={c}
             mode={list.mode}
             expandedItemId={expandedItemId}
+            selectedIds={selectedIds}
             menuOpen={menuCategoryId === c.id}
             onToggleCollapsed={() => update((l) => m.toggleCollapsed(l, c.id))}
             onToggleMenu={() => setMenuCategoryId((id) => (id === c.id ? null : c.id))}
@@ -132,7 +178,11 @@ function Main() {
             }
             onToggleAlwaysPack={() => update((l) => m.toggleAlwaysPack(l, c.id))}
             onDelete={() => confirmDelete(`"${c.name}" and its items`, () => update((l) => m.deleteCategory(l, c.id)))}
-            onTapItem={(itemId) => update((l) => m.tapItem(l, itemId))}
+            onTapItem={(itemId) => (selectedIds.length > 0 ? toggleSelected(itemId) : update((l) => m.tapItem(l, itemId)))}
+            onLongPressItem={(itemId) => {
+              setExpandedItemId(null);
+              toggleSelected(itemId);
+            }}
             onToggleItem={(itemId) => setExpandedItemId((id) => (id === itemId ? null : itemId))}
             onSetItemStatus={(itemId, status) => {
               update((l) => m.setItemStatus(l, itemId, status));
@@ -158,6 +208,7 @@ function Main() {
         </Pressable>
       </ScrollView>
       <NameModal request={nameRequest} onClose={() => setNameRequest(null)} />
+      <ChoiceModal request={choice} onClose={() => setChoice(null)} />
       <SettingsModal
         visible={settingsOpen}
         config={sync.config}
@@ -180,6 +231,9 @@ const styles = StyleSheet.create({
   topButton: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8, paddingHorizontal: 12 },
   syncDot: { width: 10, height: 10, borderRadius: 5, marginRight: 6 },
   topButtonText: { fontSize: 16, color: '#2F80ED', fontWeight: '600' },
+  selectBar: { flexDirection: 'row', alignItems: 'center', margin: 12, marginBottom: 6, borderRadius: 10, backgroundColor: '#E3EEFC', paddingLeft: 12, minHeight: 42 },
+  selectText: { fontSize: 15, fontWeight: '600', color: '#2F80ED' },
+  deleteText: { color: '#EB5757' },
   modeBar: { flexDirection: 'row', margin: 12, marginBottom: 6, borderRadius: 10, backgroundColor: '#E1E5EC', padding: 3 },
   modeButton: { flex: 1, paddingVertical: 8, borderRadius: 8, alignItems: 'center' },
   modeButtonActive: { backgroundColor: 'white' },
