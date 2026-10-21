@@ -11,7 +11,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file paker/v1/paker.proto.
  */
 export const file_paker_v1_paker: GenFile = /*@__PURE__*/
-  fileDesc("ChRwYWtlci92MS9wYWtlci5wcm90bxIIcGFrZXIudjEiogEKBEl0ZW0SCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCRIgCgZzdGF0dXMYAyABKA4yEC5wYWtlci52MS5TdGF0dXMSEgoKdXBkYXRlZF9hdBgEIAEoAxIPCgdkZWxldGVkGAUgASgIEiQKCHF1YW50aXR5GAYgASgLMhIucGFrZXIudjEuUXVhbnRpdHkSEwoLYWx3YXlzX3BhY2sYByABKAgiKgoIUXVhbnRpdHkSDgoGbmVlZGVkGAEgASgFEg4KBnBhY2tlZBgCIAEoBSJ9CghDYXRlZ29yeRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEhMKC2Fsd2F5c19wYWNrGAMgASgIEhIKCnVwZGF0ZWRfYXQYBCABKAMSDwoHZGVsZXRlZBgFIAEoCBIdCgVpdGVtcxgGIAMoCzIOLnBha2VyLnYxLkl0ZW0iNQoLUGFja2luZ0xpc3QSJgoKY2F0ZWdvcmllcxgBIAMoCzISLnBha2VyLnYxLkNhdGVnb3J5IhAKDkdldExpc3RSZXF1ZXN0IhcKFUdldExpc3RWZXJzaW9uUmVxdWVzdCIpChZHZXRMaXN0VmVyc2lvblJlc3BvbnNlEg8KB3ZlcnNpb24YASABKAkiNgoPR2V0TGlzdFJlc3BvbnNlEiMKBGxpc3QYASABKAsyFS5wYWtlci52MS5QYWNraW5nTGlzdCISChBXYXRjaExpc3RSZXF1ZXN0IiQKEVdhdGNoTGlzdFJlc3BvbnNlEg8KB3ZlcnNpb24YASABKAkiNgoPU3luY0xpc3RSZXF1ZXN0EiMKBGxpc3QYASABKAsyFS5wYWtlci52MS5QYWNraW5nTGlzdCJIChBTeW5jTGlzdFJlc3BvbnNlEiMKBGxpc3QYASABKAsyFS5wYWtlci52MS5QYWNraW5nTGlzdBIPCgd2ZXJzaW9uGAIgASgJKncKBlN0YXR1cxIWChJTVEFUVVNfVU5TUEVDSUZJRUQQABIVChFTVEFUVVNfTk9UX1BBQ0tFRBABEhIKDlNUQVRVU19QTEFOTkVEEAISEQoNU1RBVFVTX1BBQ0tFRBADEhcKE1NUQVRVU19ORUVEU19SRUZJTEwQBDKcAwoMUGFrZXJTZXJ2aWNlElQKB0dldExpc3QSGC5wYWtlci52MS5HZXRMaXN0UmVxdWVzdBoZLnBha2VyLnYxLkdldExpc3RSZXNwb25zZSIUgtPkkwIOEgwvYXBpL3YxL2xpc3QScQoOR2V0TGlzdFZlcnNpb24SHy5wYWtlci52MS5HZXRMaXN0VmVyc2lvblJlcXVlc3QaIC5wYWtlci52MS5HZXRMaXN0VmVyc2lvblJlc3BvbnNlIhyC0+STAhYSFC9hcGkvdjEvbGlzdDp2ZXJzaW9uEmIKCVdhdGNoTGlzdBIaLnBha2VyLnYxLldhdGNoTGlzdFJlcXVlc3QaGy5wYWtlci52MS5XYXRjaExpc3RSZXNwb25zZSIagtPkkwIUEhIvYXBpL3YxL2xpc3Q6d2F0Y2gwARJfCghTeW5jTGlzdBIZLnBha2VyLnYxLlN5bmNMaXN0UmVxdWVzdBoaLnBha2VyLnYxLlN5bmNMaXN0UmVzcG9uc2UiHILT5JMCFjoBKiIRL2FwaS92MS9saXN0OnN5bmNCfgoMY29tLnBha2VyLnYxQgpQYWtlclByb3RvUAFaIXBha2VyL3NlcnZlci9nZW4vcGFrZXIvdjE7cGFrZXJ2MaICA1BYWKoCCFBha2VyLlYxygIIUGFrZXJcVjHiAhRQYWtlclxWMVxHUEJNZXRhZGF0YeoCCVBha2VyOjpWMWIGcHJvdG8z", [file_google_api_annotations]);
+  fileDesc("ChRwYWtlci92MS9wYWtlci5wcm90bxIIcGFrZXIudjEiogEKBEl0ZW0SCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCRIgCgZzdGF0dXMYAyABKA4yEC5wYWtlci52MS5TdGF0dXMSEgoKdXBkYXRlZF9hdBgEIAEoAxIPCgdkZWxldGVkGAUgASgIEiQKCHF1YW50aXR5GAYgASgLMhIucGFrZXIudjEuUXVhbnRpdHkSEwoLYWx3YXlzX3BhY2sYByABKAgiKgoIUXVhbnRpdHkSDgoGbmVlZGVkGAEgASgFEg4KBnBhY2tlZBgCIAEoBSJ9CghDYXRlZ29yeRIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEhMKC2Fsd2F5c19wYWNrGAMgASgIEhIKCnVwZGF0ZWRfYXQYBCABKAMSDwoHZGVsZXRlZBgFIAEoCBIdCgVpdGVtcxgGIAMoCzIOLnBha2VyLnYxLkl0ZW0iWQoLUGFja2luZ0xpc3QSJgoKY2F0ZWdvcmllcxgBIAMoCzISLnBha2VyLnYxLkNhdGVnb3J5EiIKBXRyaXBzGAIgAygLMhMucGFrZXIudjEuU2F2ZWRUcmlwIm4KCVNhdmVkVHJpcBIKCgJpZBgBIAEoCRIMCgRuYW1lGAIgASgJEhIKCnVwZGF0ZWRfYXQYAyABKAMSDwoHZGVsZXRlZBgEIAEoCBIiCgVpdGVtcxgFIAMoCzITLnBha2VyLnYxLkl0ZW1TdGF0ZSJkCglJdGVtU3RhdGUSDwoHaXRlbV9pZBgBIAEoCRIgCgZzdGF0dXMYAiABKA4yEC5wYWtlci52MS5TdGF0dXMSJAoIcXVhbnRpdHkYAyABKAsyEi5wYWtlci52MS5RdWFudGl0eSIQCg5HZXRMaXN0UmVxdWVzdCIXChVHZXRMaXN0VmVyc2lvblJlcXVlc3QiKQoWR2V0TGlzdFZlcnNpb25SZXNwb25zZRIPCgd2ZXJzaW9uGAEgASgJIjYKD0dldExpc3RSZXNwb25zZRIjCgRsaXN0GAEgASgLMhUucGFrZXIudjEuUGFja2luZ0xpc3QiEgoQV2F0Y2hMaXN0UmVxdWVzdCIkChFXYXRjaExpc3RSZXNwb25zZRIPCgd2ZXJzaW9uGAEgASgJIjYKD1N5bmNMaXN0UmVxdWVzdBIjCgRsaXN0GAEgASgLMhUucGFrZXIudjEuUGFja2luZ0xpc3QiSAoQU3luY0xpc3RSZXNwb25zZRIjCgRsaXN0GAEgASgLMhUucGFrZXIudjEuUGFja2luZ0xpc3QSDwoHdmVyc2lvbhgCIAEoCSp3CgZTdGF0dXMSFgoSU1RBVFVTX1VOU1BFQ0lGSUVEEAASFQoRU1RBVFVTX05PVF9QQUNLRUQQARISCg5TVEFUVVNfUExBTk5FRBACEhEKDVNUQVRVU19QQUNLRUQQAxIXChNTVEFUVVNfTkVFRFNfUkVGSUxMEAQynAMKDFBha2VyU2VydmljZRJUCgdHZXRMaXN0EhgucGFrZXIudjEuR2V0TGlzdFJlcXVlc3QaGS5wYWtlci52MS5HZXRMaXN0UmVzcG9uc2UiFILT5JMCDhIML2FwaS92MS9saXN0EnEKDkdldExpc3RWZXJzaW9uEh8ucGFrZXIudjEuR2V0TGlzdFZlcnNpb25SZXF1ZXN0GiAucGFrZXIudjEuR2V0TGlzdFZlcnNpb25SZXNwb25zZSIcgtPkkwIWEhQvYXBpL3YxL2xpc3Q6dmVyc2lvbhJiCglXYXRjaExpc3QSGi5wYWtlci52MS5XYXRjaExpc3RSZXF1ZXN0GhsucGFrZXIudjEuV2F0Y2hMaXN0UmVzcG9uc2UiGoLT5JMCFBISL2FwaS92MS9saXN0OndhdGNoMAESXwoIU3luY0xpc3QSGS5wYWtlci52MS5TeW5jTGlzdFJlcXVlc3QaGi5wYWtlci52MS5TeW5jTGlzdFJlc3BvbnNlIhyC0+STAhY6ASoiES9hcGkvdjEvbGlzdDpzeW5jQn4KDGNvbS5wYWtlci52MUIKUGFrZXJQcm90b1ABWiFwYWtlci9zZXJ2ZXIvZ2VuL3Bha2VyL3YxO3Bha2VydjGiAgNQWFiqAghQYWtlci5WMcoCCFBha2VyXFYx4gIUUGFrZXJcVjFcR1BCTWV0YWRhdGHqAglQYWtlcjo6VjFiBnByb3RvMw", [file_google_api_annotations]);
 
 /**
  * @generated from message paker.v1.Item
@@ -258,6 +258,11 @@ export type PackingList = Message<"paker.v1.PackingList"> & {
    * @generated from field: repeated paker.v1.Category categories = 1;
    */
   categories: Category[];
+
+  /**
+   * @generated from field: repeated paker.v1.SavedTrip trips = 2;
+   */
+  trips: SavedTrip[];
 };
 
 /**
@@ -270,6 +275,11 @@ export type PackingListJson = {
    * @generated from field: repeated paker.v1.Category categories = 1;
    */
   categories?: CategoryJson[];
+
+  /**
+   * @generated from field: repeated paker.v1.SavedTrip trips = 2;
+   */
+  trips?: SavedTripJson[];
 };
 
 /**
@@ -278,6 +288,124 @@ export type PackingListJson = {
  */
 export const PackingListSchema: GenMessage<PackingList, {jsonType: PackingListJson}> = /*@__PURE__*/
   messageDesc(file_paker_v1_paker, 3);
+
+/**
+ * A named snapshot of every item's status and quantity, e.g. "Seattle". Merged newest-wins as a whole.
+ *
+ * @generated from message paker.v1.SavedTrip
+ */
+export type SavedTrip = Message<"paker.v1.SavedTrip"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * @generated from field: int64 updated_at = 3;
+   */
+  updatedAt: bigint;
+
+  /**
+   * @generated from field: bool deleted = 4;
+   */
+  deleted: boolean;
+
+  /**
+   * @generated from field: repeated paker.v1.ItemState items = 5;
+   */
+  items: ItemState[];
+};
+
+/**
+ * A named snapshot of every item's status and quantity, e.g. "Seattle". Merged newest-wins as a whole.
+ *
+ * @generated from message paker.v1.SavedTrip
+ */
+export type SavedTripJson = {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id?: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name?: string;
+
+  /**
+   * @generated from field: int64 updated_at = 3;
+   */
+  updatedAt?: string;
+
+  /**
+   * @generated from field: bool deleted = 4;
+   */
+  deleted?: boolean;
+
+  /**
+   * @generated from field: repeated paker.v1.ItemState items = 5;
+   */
+  items?: ItemStateJson[];
+};
+
+/**
+ * Describes the message paker.v1.SavedTrip.
+ * Use `create(SavedTripSchema)` to create a new message.
+ */
+export const SavedTripSchema: GenMessage<SavedTrip, {jsonType: SavedTripJson}> = /*@__PURE__*/
+  messageDesc(file_paker_v1_paker, 4);
+
+/**
+ * @generated from message paker.v1.ItemState
+ */
+export type ItemState = Message<"paker.v1.ItemState"> & {
+  /**
+   * @generated from field: string item_id = 1;
+   */
+  itemId: string;
+
+  /**
+   * @generated from field: paker.v1.Status status = 2;
+   */
+  status: Status;
+
+  /**
+   * @generated from field: paker.v1.Quantity quantity = 3;
+   */
+  quantity?: Quantity | undefined;
+};
+
+/**
+ * @generated from message paker.v1.ItemState
+ */
+export type ItemStateJson = {
+  /**
+   * @generated from field: string item_id = 1;
+   */
+  itemId?: string;
+
+  /**
+   * @generated from field: paker.v1.Status status = 2;
+   */
+  status?: StatusJson;
+
+  /**
+   * @generated from field: paker.v1.Quantity quantity = 3;
+   */
+  quantity?: QuantityJson;
+};
+
+/**
+ * Describes the message paker.v1.ItemState.
+ * Use `create(ItemStateSchema)` to create a new message.
+ */
+export const ItemStateSchema: GenMessage<ItemState, {jsonType: ItemStateJson}> = /*@__PURE__*/
+  messageDesc(file_paker_v1_paker, 5);
 
 /**
  * @generated from message paker.v1.GetListRequest
@@ -296,7 +424,7 @@ export type GetListRequestJson = {
  * Use `create(GetListRequestSchema)` to create a new message.
  */
 export const GetListRequestSchema: GenMessage<GetListRequest, {jsonType: GetListRequestJson}> = /*@__PURE__*/
-  messageDesc(file_paker_v1_paker, 4);
+  messageDesc(file_paker_v1_paker, 6);
 
 /**
  * @generated from message paker.v1.GetListVersionRequest
@@ -315,7 +443,7 @@ export type GetListVersionRequestJson = {
  * Use `create(GetListVersionRequestSchema)` to create a new message.
  */
 export const GetListVersionRequestSchema: GenMessage<GetListVersionRequest, {jsonType: GetListVersionRequestJson}> = /*@__PURE__*/
-  messageDesc(file_paker_v1_paker, 5);
+  messageDesc(file_paker_v1_paker, 7);
 
 /**
  * @generated from message paker.v1.GetListVersionResponse
@@ -346,7 +474,7 @@ export type GetListVersionResponseJson = {
  * Use `create(GetListVersionResponseSchema)` to create a new message.
  */
 export const GetListVersionResponseSchema: GenMessage<GetListVersionResponse, {jsonType: GetListVersionResponseJson}> = /*@__PURE__*/
-  messageDesc(file_paker_v1_paker, 6);
+  messageDesc(file_paker_v1_paker, 8);
 
 /**
  * @generated from message paker.v1.GetListResponse
@@ -373,7 +501,7 @@ export type GetListResponseJson = {
  * Use `create(GetListResponseSchema)` to create a new message.
  */
 export const GetListResponseSchema: GenMessage<GetListResponse, {jsonType: GetListResponseJson}> = /*@__PURE__*/
-  messageDesc(file_paker_v1_paker, 7);
+  messageDesc(file_paker_v1_paker, 9);
 
 /**
  * @generated from message paker.v1.WatchListRequest
@@ -392,7 +520,7 @@ export type WatchListRequestJson = {
  * Use `create(WatchListRequestSchema)` to create a new message.
  */
 export const WatchListRequestSchema: GenMessage<WatchListRequest, {jsonType: WatchListRequestJson}> = /*@__PURE__*/
-  messageDesc(file_paker_v1_paker, 8);
+  messageDesc(file_paker_v1_paker, 10);
 
 /**
  * @generated from message paker.v1.WatchListResponse
@@ -423,7 +551,7 @@ export type WatchListResponseJson = {
  * Use `create(WatchListResponseSchema)` to create a new message.
  */
 export const WatchListResponseSchema: GenMessage<WatchListResponse, {jsonType: WatchListResponseJson}> = /*@__PURE__*/
-  messageDesc(file_paker_v1_paker, 9);
+  messageDesc(file_paker_v1_paker, 11);
 
 /**
  * @generated from message paker.v1.SyncListRequest
@@ -454,7 +582,7 @@ export type SyncListRequestJson = {
  * Use `create(SyncListRequestSchema)` to create a new message.
  */
 export const SyncListRequestSchema: GenMessage<SyncListRequest, {jsonType: SyncListRequestJson}> = /*@__PURE__*/
-  messageDesc(file_paker_v1_paker, 10);
+  messageDesc(file_paker_v1_paker, 12);
 
 /**
  * @generated from message paker.v1.SyncListResponse
@@ -499,7 +627,7 @@ export type SyncListResponseJson = {
  * Use `create(SyncListResponseSchema)` to create a new message.
  */
 export const SyncListResponseSchema: GenMessage<SyncListResponse, {jsonType: SyncListResponseJson}> = /*@__PURE__*/
-  messageDesc(file_paker_v1_paker, 11);
+  messageDesc(file_paker_v1_paker, 13);
 
 /**
  * Status of one item on the packing list.

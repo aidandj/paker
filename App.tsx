@@ -6,6 +6,7 @@ import { CategorySection } from './src/components/CategorySection';
 import { ChoiceModal, ChoiceRequest } from './src/components/ChoiceModal';
 import { NameModal, NameRequest } from './src/components/NameModal';
 import { SettingsModal } from './src/components/SettingsModal';
+import { TripsModal } from './src/components/TripsModal';
 import * as m from './src/model';
 import { loadList, saveList } from './src/storage';
 import { SyncStatus, useSync } from './src/sync';
@@ -38,6 +39,7 @@ function Main() {
   const [choice, setChoice] = useState<ChoiceRequest | null>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]); // non-empty = multi-select mode
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [tripsOpen, setTripsOpen] = useState(false);
   const loaded = useRef(false);
   const sync = useSync(list, setList);
   const { theme, toggle: toggleTheme } = useContext(ThemeContext);
@@ -127,6 +129,9 @@ function Main() {
           <Pressable onPress={() => setSettingsOpen(true)} style={styles.topButton}>
             <View style={[styles.syncDot, { backgroundColor: SYNC_DOT[sync.status] }]} />
             <Text style={styles.topButtonText}>Sync</Text>
+          </Pressable>
+          <Pressable onPress={() => setTripsOpen(true)} style={styles.topButton}>
+            <Text style={styles.topButtonText}>Trips</Text>
           </Pressable>
           <Pressable onPress={showResetMenu} style={styles.topButton}>
             <Text style={styles.topButtonText}>Reset</Text>
@@ -229,6 +234,35 @@ function Main() {
       </ScrollView>
       <NameModal request={nameRequest} onClose={() => setNameRequest(null)} />
       <ChoiceModal request={choice} onClose={() => setChoice(null)} />
+      <TripsModal
+        visible={tripsOpen}
+        trips={m.live(list.trips)}
+        onClose={() => setTripsOpen(false)}
+        onSave={() => {
+          setTripsOpen(false);
+          setNameRequest({
+            title: 'Save trip as',
+            onSubmit: (name) => update((l) => m.saveTrip(l, name)),
+          });
+        }}
+        onLoad={(tripId) => {
+          setTripsOpen(false);
+          const trip = list.trips.find((t) => t.id === tripId);
+          setChoice({
+            title: `Load "${trip?.name}"?`,
+            message: 'Every item gets the state it had when the trip was saved; items not in it become Not packed.',
+            choices: [
+              { text: 'Cancel', style: 'cancel' },
+              { text: 'Load', onPress: () => update((l) => m.loadTrip(l, tripId)) },
+            ],
+          });
+        }}
+        onDelete={(tripId) => {
+          const trip = list.trips.find((t) => t.id === tripId);
+          setTripsOpen(false);
+          confirmDelete(`trip "${trip?.name}"`, () => update((l) => m.deleteTrip(l, tripId)));
+        }}
+      />
       <SettingsModal
         visible={settingsOpen}
         config={sync.config}

@@ -85,6 +85,22 @@ func TestTombstonesAndCategoryFields(t *testing.T) {
 	}
 }
 
+func TestTripsMergeNewestWins(t *testing.T) {
+	base := &pakerv1.PackingList{Trips: []*pakerv1.SavedTrip{{Id: "t", Name: "Old", UpdatedAt: 1, Items: []*pakerv1.ItemState{{ItemId: "a", Status: pakerv1.Status_STATUS_PLANNED}}}}}
+	in := &pakerv1.PackingList{Trips: []*pakerv1.SavedTrip{
+		{Id: "t", Name: "New", UpdatedAt: 2, Items: []*pakerv1.ItemState{{ItemId: "a", Status: pakerv1.Status_STATUS_PACKED}}},
+		{Id: "u", Name: "Other", UpdatedAt: 1},
+	}}
+	got := Merge(base, in).Trips
+	if len(got) != 2 || got[0].Name != "New" || got[0].Items[0].Status != pakerv1.Status_STATUS_PACKED || got[1].Items == nil {
+		t.Fatalf("got %v", got)
+	}
+	stale := &pakerv1.PackingList{Trips: []*pakerv1.SavedTrip{{Id: "t", Name: "Older", UpdatedAt: 0}}}
+	if again := Merge(Merge(base, in), stale).Trips[0]; again.Name != "New" {
+		t.Fatalf("stale overwrote: %v", again)
+	}
+}
+
 func TestNilInputs(t *testing.T) {
 	got := Merge(nil, nil)
 	if got == nil || got.Categories == nil || len(got.Categories) != 0 {

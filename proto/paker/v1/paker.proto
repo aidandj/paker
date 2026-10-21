@@ -51,6 +51,22 @@ message Category {
 // The whole packing list. Per-device view state (mode, collapsed) is not part of it.
 message PackingList {
   repeated Category categories = 1;
+  repeated SavedTrip trips = 2;
+}
+
+// A named snapshot of every item's status and quantity, e.g. "Seattle". Merged newest-wins as a whole.
+message SavedTrip {
+  string id = 1;
+  string name = 2;
+  int64 updated_at = 3;
+  bool deleted = 4;
+  repeated ItemState items = 5;
+}
+
+message ItemState {
+  string item_id = 1;
+  Status status = 2;
+  Quantity quantity = 3;
 }
 
 message GetListRequest {}

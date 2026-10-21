@@ -30,6 +30,34 @@ func Merge(base, incoming *pakerv1.PackingList) *pakerv1.PackingList {
 			c.Items = []*pakerv1.Item{}
 		}
 	}
+	out.Trips = mergeTrips(base.GetTrips(), incoming.GetTrips())
+	return out
+}
+
+// Saved trips merge as whole snapshots: newer updatedAt wins, ties keep the stored one.
+func mergeTrips(base, in []*pakerv1.SavedTrip) []*pakerv1.SavedTrip {
+	out := make([]*pakerv1.SavedTrip, 0, len(base))
+	byID := map[string]int{}
+	for _, t := range base {
+		byID[t.GetId()] = len(out)
+		out = append(out, t)
+	}
+	for _, t := range in {
+		idx, seen := byID[t.GetId()]
+		if !seen {
+			byID[t.GetId()] = len(out)
+			out = append(out, t)
+			continue
+		}
+		if t.GetUpdatedAt() > out[idx].GetUpdatedAt() {
+			out[idx] = t
+		}
+	}
+	for _, t := range out {
+		if t.Items == nil {
+			t.Items = []*pakerv1.ItemState{}
+		}
+	}
 	return out
 }
 

@@ -1,5 +1,5 @@
 // Pure functions over PackingList. No React, no storage. Every function returns a new list.
-import type { Category, Item, Mode, PackingList, Status } from './types';
+import type { Category, Item, ItemState, Mode, PackingList, SavedTrip, Status } from './types';
 
 export function newId(): string {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
@@ -194,6 +194,39 @@ export function startNewTrip(list: PackingList): PackingList {
   });
 }
 
+// --- saved trips ---
+
+/** Snapshot the current item states under a name. Saving with an existing name overwrites that trip. */
+export function saveTrip(list: PackingList, name: string): PackingList {
+  const items: ItemState[] = live(list.categories).flatMap((c) =>
+    live(c.items).map((i) => ({ itemId: i.id, status: i.status, ...(i.quantity ? { quantity: { ...i.quantity } } : {}) })),
+  );
+  const existing = live(list.trips).find((t) => t.name.toLowerCase() === name.toLowerCase());
+  const trip: SavedTrip = { id: existing?.id ?? newId(), name, updatedAt: now(), items };
+  const trips = existing ? list.trips.map((t) => (t.id === existing.id ? trip : t)) : [...list.trips, trip];
+  return { ...list, trips };
+}
+
+/** Restore a snapshot: items in it get their saved state, every other item becomes "Not packed". */
+export function loadTrip(list: PackingList, tripId: string): PackingList {
+  const trip = list.trips.find((t) => t.id === tripId && !t.deleted);
+  if (!trip) return list;
+  const saved = new Map(trip.items.map((s) => [s.itemId, s]));
+  return mapItems(list, (i) => {
+    const s = saved.get(i.id);
+    const status: Status = s?.status ?? 'not_packed';
+    const quantity = i.quantity ? { needed: s?.quantity?.needed ?? 0, packed: s?.quantity?.packed ?? 0 } : undefined;
+    const same = i.status === status && JSON.stringify(i.quantity) === JSON.stringify(quantity);
+    if (same) return i;
+    const next = withQuantityFor({ ...i, status, updatedAt: now() });
+    return quantity ? { ...next, quantity } : next;
+  });
+}
+
+export function deleteTrip(list: PackingList, tripId: string): PackingList {
+  return { ...list, trips: list.trips.map((t) => (t.id === tripId ? { ...t, deleted: true, updatedAt: now() } : t)) };
+}
+
 // --- helpers ---
 
 export function countStatuses(category: Category): { packed: number; active: number } {
@@ -226,6 +259,7 @@ export function seedList(): PackingList {
   });
   return {
     mode: 'planning',
+    trips: [],
     categories: [
       mk('Always pack', true, ['Phone charger', 'Wallet', 'Keys', 'Toothbrush']),
       mk('Clothes', false, ['T-shirts', 'Pants', 'Socks', 'Underwear', 'Jacket']),

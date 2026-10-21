@@ -22,6 +22,7 @@ export async function loadList(): Promise<PackingList | null> {
 function migrate(raw: any): PackingList {
   return {
     mode: raw.mode ?? 'planning',
+    trips: raw.trips ?? [],
     categories: raw.categories.map((c: any) => ({
       ...c,
       updatedAt: c.updatedAt ?? 0,

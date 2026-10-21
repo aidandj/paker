@@ -60,4 +60,20 @@ export type Mode = 'planning' | 'packing';
 export interface PackingList {
   mode: Mode;
   categories: Category[];
+  /** Named snapshots of item states, e.g. "Seattle". */
+  trips: SavedTrip[];
+}
+
+export interface SavedTrip {
+  id: string;
+  name: string;
+  updatedAt: number;
+  deleted?: boolean;
+  items: ItemState[];
+}
+
+export interface ItemState {
+  itemId: string;
+  status: Status;
+  quantity?: Quantity;
 }

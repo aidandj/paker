@@ -9,7 +9,7 @@ import {
   SyncListRequestSchema,
   SyncListResponseSchema,
 } from './gen/paker/v1/paker_pb';
-import type { Category, Item, PackingList, Status } from './types';
+import type { Category, Item, PackingList, SavedTrip, Status } from './types';
 
 export interface ServerConfig {
   url: string; // e.g. https://paker.example.com (no trailing slash)
@@ -44,6 +44,13 @@ export function toProto(list: PackingList): PbPackingList {
         alwaysPack: !!i.alwaysPack,
       })),
     })),
+    trips: list.trips.map((t) => ({
+      id: t.id,
+      name: t.name,
+      updatedAt: BigInt(t.updatedAt),
+      deleted: !!t.deleted,
+      items: t.items.map((s) => ({ itemId: s.itemId, status: toPbStatus[s.status], quantity: s.quantity })),
+    })),
   });
 }
 
@@ -69,7 +76,18 @@ export function fromProto(pb: PbPackingList | undefined, local: PackingList): Pa
       }),
     ),
   }));
-  return { mode: local.mode, categories };
+  const trips: SavedTrip[] = (pb?.trips ?? []).map((t) => ({
+    id: t.id,
+    name: t.name,
+    updatedAt: Number(t.updatedAt),
+    deleted: t.deleted || undefined,
+    items: t.items.map((s) => ({
+      itemId: s.itemId,
+      status: fromPbStatus(s.status),
+      ...(s.quantity ? { quantity: { needed: s.quantity.needed, packed: s.quantity.packed } } : {}),
+    })),
+  }));
+  return { mode: local.mode, categories, trips };
 }
 
 /** Push the local list; the server merges it and returns the result, which replaces the local list. */

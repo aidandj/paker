@@ -15,6 +15,7 @@ function fixture(): PackingList {
   });
   return {
     mode: 'planning',
+    trips: [],
     categories: [
       cat('always', true, [['keys', 'packed'], ['wallet', 'not_packed'], ['meds', 'needs_refill']]),
       cat('clothes', false, [['shirt', 'packed'], ['pants', 'planned'], ['socks', 'not_packed'], ['lotion', 'needs_refill']]),
@@ -180,6 +181,37 @@ test('setAllCollapsed folds and unfolds every category', () => {
   const folded = m.setAllCollapsed(fixture(), true);
   assert.ok(folded.categories.every((c) => c.collapsed));
   assert.ok(m.setAllCollapsed(folded, false).categories.every((c) => !c.collapsed));
+});
+
+test('saveTrip snapshots item states; loadTrip restores them and clears the rest', () => {
+  let list = m.addItem(fixture(), 'clothes', 'Shirts', { quantity: true });
+  const shirts = list.categories[1].items.at(-1)!.id;
+  list = m.adjustNeeded(list, shirts, 2);
+  list = m.saveTrip(list, 'Seattle');
+  assert.equal(list.trips.length, 1);
+  const trip = list.trips[0];
+  assert.equal(trip.name, 'Seattle');
+  assert.deepEqual(trip.items.find((s) => s.itemId === shirts), { itemId: shirts, status: 'planned', quantity: { needed: 2, packed: 0 } });
+
+  // change things, add an item, then load the trip
+  list = m.startNewTrip(list);
+  list = m.addItem(list, 'clothes', 'Hat');
+  list = m.tapItem(list, list.categories[1].items.at(-1)!.id); // Hat planned
+  list = m.loadTrip(list, trip.id);
+  const byName = (n: string) => list.categories[1].items.find((i) => i.name === n)!;
+  assert.equal(byName('shirt').status, 'packed'); // as in the fixture when saved
+  assert.equal(byName('pants').status, 'planned');
+  assert.deepEqual(byName('Shirts').quantity, { needed: 2, packed: 0 });
+  assert.equal(byName('Hat').status, 'not_packed'); // not in the snapshot
+  assert.equal(list.categories[0].items[2].status, 'needs_refill'); // saved as refill, restored as refill
+
+  // saving again with the same name (any case) overwrites, not duplicates
+  list = m.saveTrip(list, 'seattle');
+  assert.equal(m.live(list.trips).length, 1);
+  assert.equal(list.trips[0].id, trip.id);
+
+  list = m.deleteTrip(list, trip.id);
+  assert.equal(m.live(list.trips).length, 0);
 });
 
 test('countStatuses counts packed and active (anything but not_packed), ignoring tombstones', () => {
