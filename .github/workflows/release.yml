@@ -88,6 +88,15 @@ jobs:
           distribution: temurin
           java-version: 17
       # ubuntu-latest already has the Android SDK at $ANDROID_HOME; Gradle fetches what it needs.
+      # Caches: Gradle wrapper + dependencies + build cache (the generated android/ project is identical
+      # between runs, so compiled Kotlin/Java is reused), and ccache for the NDK C++ compile.
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
+      - uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: android-ndk
+          max-size: 1G
       - run: npm ci
       - name: Stamp version into app.json
         run: |
@@ -97,8 +106,11 @@ jobs:
       - run: npx expo prebuild --platform android --no-install
         env:
           CI: 1
-      - run: ./gradlew assembleRelease --no-daemon
+      - run: ./gradlew assembleRelease --build-cache
         working-directory: android
+        env:
+          CMAKE_C_COMPILER_LAUNCHER: ccache
+          CMAKE_CXX_COMPILER_LAUNCHER: ccache
       - run: cp android/app/build/outputs/apk/release/app-release.apk paker-${{ needs.version.outputs.version }}.apk
       - uses: actions/upload-artifact@v4
         with:
