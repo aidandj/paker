@@ -99,6 +99,10 @@ func TestTripsMergeNewestWins(t *testing.T) {
 	if again := Merge(Merge(base, in), stale).Trips[0]; again.Name != "New" {
 		t.Fatalf("stale overwrote: %v", again)
 	}
+	del := &pakerv1.PackingList{Trips: []*pakerv1.SavedTrip{{Id: "t", Name: "New", UpdatedAt: 3, Deleted: true, Items: []*pakerv1.ItemState{{ItemId: "a"}}}}}
+	if gone := Merge(Merge(base, in), del).Trips[0]; !gone.Deleted || len(gone.Items) != 0 {
+		t.Fatalf("deleted trip should be an empty tombstone: %v", gone)
+	}
 }
 
 func TestNilInputs(t *testing.T) {

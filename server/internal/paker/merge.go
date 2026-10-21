@@ -54,7 +54,7 @@ func mergeTrips(base, in []*pakerv1.SavedTrip) []*pakerv1.SavedTrip {
 		}
 	}
 	for _, t := range out {
-		if t.Items == nil {
+		if t.Items == nil || t.GetDeleted() { // tombstones carry no plan; keeps the document small
 			t.Items = []*pakerv1.ItemState{}
 		}
 	}

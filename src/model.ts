@@ -243,7 +243,7 @@ export function loadTrip(list: PackingList, tripId: string): PackingList {
 }
 
 export function deleteTrip(list: PackingList, tripId: string): PackingList {
-  return { ...list, trips: list.trips.map((t) => (t.id === tripId ? { ...t, deleted: true, updatedAt: now() } : t)) };
+  return { ...list, trips: list.trips.map((t) => (t.id === tripId ? { ...t, deleted: true, items: [], updatedAt: now() } : t)) };
 }
 
 // --- helpers ---
