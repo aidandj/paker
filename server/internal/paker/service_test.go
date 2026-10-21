@@ -1,26 +1,29 @@
 package paker
 
 import (
+	"bufio"
 	"context"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-
-	pakerv1 "paker/server/gen/paker/v1"
+	"google.golang.org/grpc"
 )
 
 func newHTTP(t *testing.T) http.Handler {
 	t.Helper()
-	svc := &Service{Store: FileStore{Path: filepath.Join(t.TempDir(), "paker.json")}}
-	mux := runtime.NewServeMux()
-	if err := pakerv1.RegisterPakerServiceHandlerServer(context.Background(), mux, svc); err != nil {
+	svc := &Service{Store: FileStore{Path: filepath.Join(t.TempDir(), "paker.json")}, Heartbeat: 200 * time.Millisecond}
+	auth := BasicAuth{User: "u", Password: "p"}
+	mux, grpcServer, err := NewGateway(context.Background(), svc, grpc.UnaryInterceptor(auth.Interceptor), grpc.StreamInterceptor(auth.StreamInterceptor))
+	if err != nil {
 		t.Fatal(err)
 	}
-	return BasicAuth{User: "u", Password: "p"}.Middleware(mux)
+	t.Cleanup(grpcServer.Stop)
+	return auth.Middleware(mux)
 }
 
 func call(h http.Handler, method, path, body string, auth bool) *httptest.ResponseRecorder {
@@ -86,6 +89,63 @@ func TestVersionChangesWithContent(t *testing.T) {
 	}
 	if !strings.Contains(call(h, "POST", "/api/v1/list:sync", `{"list":{}}`, true).Body.String(), `"version":"`) {
 		t.Fatal("sync response should carry the version")
+	}
+}
+
+func TestWatchListAsSSE(t *testing.T) {
+	h := newHTTP(t)
+	srv := httptest.NewServer(h)
+	defer srv.Close()
+
+	req, _ := http.NewRequest("GET", srv.URL+"/api/v1/list:watch", nil)
+	req.SetBasicAuth("u", "p")
+	req.Header.Set("Accept", "text/event-stream")
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer res.Body.Close()
+	if ct := res.Header.Get("Content-Type"); !strings.HasPrefix(ct, "text/event-stream") {
+		t.Fatalf("content type %q", ct)
+	}
+	events := make(chan string, 10)
+	go func() {
+		r := bufio.NewReader(res.Body)
+		for {
+			line, err := r.ReadString('\n')
+			if strings.HasPrefix(line, "data: ") {
+				events <- strings.TrimSpace(strings.TrimPrefix(line, "data: "))
+			}
+			if err == io.EOF || err != nil {
+				return
+			}
+		}
+	}()
+	next := func() string {
+		select {
+		case e := <-events:
+			return e
+		case <-time.After(2 * time.Second):
+			t.Fatal("no event")
+			return ""
+		}
+	}
+	first := next()
+	if !strings.Contains(first, `"version":"`) {
+		t.Fatalf("first event %q", first)
+	}
+	// A change on another client produces an event with a new version.
+	call(h, "POST", "/api/v1/list:sync", `{"list":{"categories":[{"id":"c","name":"C","updatedAt":"1","items":[]}]}}`, true)
+	deadline := time.After(2 * time.Second)
+	for {
+		select {
+		case e := <-events:
+			if e != first {
+				return // changed version arrived (heartbeats may repeat the old one first)
+			}
+		case <-deadline:
+			t.Fatal("no change event")
+		}
 	}
 }
 

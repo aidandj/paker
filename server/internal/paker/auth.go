@@ -47,13 +47,29 @@ func (a BasicAuth) Middleware(next http.Handler) http.Handler {
 	})
 }
 
-// Interceptor protects the gRPC port using the same header in metadata.
+// Interceptor protects unary gRPC calls using the same header in metadata (the gateway forwards
+// the HTTP Authorization header there, so it passes for gateway calls as well).
 func (a BasicAuth) Interceptor(ctx context.Context, req any, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
+	if !a.validCtx(ctx) {
+		return nil, status.Error(codes.Unauthenticated, "unauthorized")
+	}
+	return handler(ctx, req)
+}
+
+// StreamInterceptor does the same for streaming calls.
+func (a BasicAuth) StreamInterceptor(srv any, ss grpc.ServerStream, _ *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+	if !a.validCtx(ss.Context()) {
+		return status.Error(codes.Unauthenticated, "unauthorized")
+	}
+	return handler(srv, ss)
+}
+
+func (a BasicAuth) validCtx(ctx context.Context) bool {
 	md, _ := metadata.FromIncomingContext(ctx)
 	for _, v := range md.Get("authorization") {
 		if a.Valid(v) {
-			return handler(ctx, req)
+			return true
 		}
 	}
-	return nil, status.Error(codes.Unauthenticated, "unauthorized")
+	return false
 }

@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	PakerService_GetList_FullMethodName        = "/paker.v1.PakerService/GetList"
 	PakerService_GetListVersion_FullMethodName = "/paker.v1.PakerService/GetListVersion"
+	PakerService_WatchList_FullMethodName      = "/paker.v1.PakerService/WatchList"
 	PakerService_SyncList_FullMethodName       = "/paker.v1.PakerService/SyncList"
 )
 
@@ -32,6 +33,9 @@ type PakerServiceClient interface {
 	GetList(ctx context.Context, in *GetListRequest, opts ...grpc.CallOption) (*GetListResponse, error)
 	// Cheap poll: the current list version, so a client can tell whether a sync is needed.
 	GetListVersion(ctx context.Context, in *GetListVersionRequest, opts ...grpc.CallOption) (*GetListVersionResponse, error)
+	// Server stream of list versions: an event on connect, one per change, plus a heartbeat every
+	// 25s. Served as Server-Sent Events when the client sends "Accept: text/event-stream".
+	WatchList(ctx context.Context, in *WatchListRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[WatchListResponse], error)
 	// Merges the device's list into the stored one (newest change per item wins) and returns the result.
 	SyncList(ctx context.Context, in *SyncListRequest, opts ...grpc.CallOption) (*SyncListResponse, error)
 }
@@ -64,6 +68,25 @@ func (c *pakerServiceClient) GetListVersion(ctx context.Context, in *GetListVers
 	return out, nil
 }
 
+func (c *pakerServiceClient) WatchList(ctx context.Context, in *WatchListRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[WatchListResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &PakerService_ServiceDesc.Streams[0], PakerService_WatchList_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[WatchListRequest, WatchListResponse]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type PakerService_WatchListClient = grpc.ServerStreamingClient[WatchListResponse]
+
 func (c *pakerServiceClient) SyncList(ctx context.Context, in *SyncListRequest, opts ...grpc.CallOption) (*SyncListResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(SyncListResponse)
@@ -82,6 +105,9 @@ type PakerServiceServer interface {
 	GetList(context.Context, *GetListRequest) (*GetListResponse, error)
 	// Cheap poll: the current list version, so a client can tell whether a sync is needed.
 	GetListVersion(context.Context, *GetListVersionRequest) (*GetListVersionResponse, error)
+	// Server stream of list versions: an event on connect, one per change, plus a heartbeat every
+	// 25s. Served as Server-Sent Events when the client sends "Accept: text/event-stream".
+	WatchList(*WatchListRequest, grpc.ServerStreamingServer[WatchListResponse]) error
 	// Merges the device's list into the stored one (newest change per item wins) and returns the result.
 	SyncList(context.Context, *SyncListRequest) (*SyncListResponse, error)
 	mustEmbedUnimplementedPakerServiceServer()
@@ -99,6 +125,9 @@ func (UnimplementedPakerServiceServer) GetList(context.Context, *GetListRequest)
 }
 func (UnimplementedPakerServiceServer) GetListVersion(context.Context, *GetListVersionRequest) (*GetListVersionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetListVersion not implemented")
+}
+func (UnimplementedPakerServiceServer) WatchList(*WatchListRequest, grpc.ServerStreamingServer[WatchListResponse]) error {
+	return status.Error(codes.Unimplemented, "method WatchList not implemented")
 }
 func (UnimplementedPakerServiceServer) SyncList(context.Context, *SyncListRequest) (*SyncListResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method SyncList not implemented")
@@ -160,6 +189,17 @@ func _PakerService_GetListVersion_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PakerService_WatchList_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(WatchListRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(PakerServiceServer).WatchList(m, &grpc.GenericServerStream[WatchListRequest, WatchListResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type PakerService_WatchListServer = grpc.ServerStreamingServer[WatchListResponse]
+
 func _PakerService_SyncList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SyncListRequest)
 	if err := dec(in); err != nil {
@@ -198,6 +238,12 @@ var PakerService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _PakerService_SyncList_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "WatchList",
+			Handler:       _PakerService_WatchList_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "paker/v1/paker.proto",
 }

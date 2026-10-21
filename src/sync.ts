@@ -1,16 +1,18 @@
 // Keeps the local list in step with the server: after every change (debounced), on launch, when the
-// app returns to the foreground, and by polling the list version every POLL_MS while in the
-// foreground (a tiny request; a full sync only runs when the version changed). So changes made on
-// another device show up within seconds without any push infrastructure.
+// app returns to the foreground, and whenever the server's WatchList stream (Server-Sent Events)
+// reports a version other than the one from our last sync. The stream is reopened with a short
+// delay when it drops and restarted if no heartbeat arrives, so a change on another device shows
+// up within about a second and nothing is missed across reconnects.
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState } from 'react-native';
-import { getList, getListVersion, ServerConfig, syncList } from './api';
+import { getList, ServerConfig, syncList, watchListVersion } from './api';
 import { PackingList } from './types';
 
 const CONFIG_KEY = 'paker.server.v1';
 const DEBOUNCE_MS = 500;
-const POLL_MS = 3_000;
+const RECONNECT_MS = 5_000;
+const WATCHDOG_MS = 60_000; // heartbeats come every 25s
 
 export type SyncStatus = 'off' | 'syncing' | 'synced' | 'error';
 
@@ -95,26 +97,55 @@ export function useSync(list: PackingList | null, setList: (l: PackingList) => v
     };
   }, [list, config, syncNow]);
 
-  // Sync when the config is first loaded, when the app comes to the foreground, and on a timer
-  // while it stays in the foreground.
+  // Sync when the config is first loaded and when the app comes to the foreground; while in the
+  // foreground keep the server's version stream open and sync whenever it reports a change.
   useEffect(() => {
     if (!config) return;
-    let poll: ReturnType<typeof setInterval> | null = null;
-    const check = async () => {
-      if (running.current) return;
-      try {
-        if ((await getListVersion(config)) !== version.current) await syncNow();
-      } catch {
-        setStatus('error');
-      }
+    let active = false;
+    let close: (() => void) | null = null;
+    let reconnect: ReturnType<typeof setTimeout> | null = null;
+    let watchdog: ReturnType<typeof setTimeout> | null = null;
+
+    const clearTimers = () => {
+      if (reconnect) clearTimeout(reconnect);
+      if (watchdog) clearTimeout(watchdog);
+      reconnect = watchdog = null;
+    };
+    const open = () => {
+      if (!active || close) return;
+      close = watchListVersion(
+        config,
+        (v) => {
+          armWatchdog();
+          if (v === version.current) return;
+          if (running.current) pending.current = true; // the running sync will go again
+          else void syncNow();
+        },
+        () => {
+          close = null;
+          if (active) reconnect = setTimeout(open, RECONNECT_MS);
+        },
+      );
+      armWatchdog();
+    };
+    const armWatchdog = () => {
+      if (watchdog) clearTimeout(watchdog);
+      watchdog = setTimeout(() => {
+        close?.();
+        close = null;
+        open();
+      }, WATCHDOG_MS);
     };
     const start = () => {
+      active = true;
       void syncNow();
-      if (!poll) poll = setInterval(() => void check(), POLL_MS);
+      open();
     };
     const stop = () => {
-      if (poll) clearInterval(poll);
-      poll = null;
+      active = false;
+      clearTimers();
+      close?.();
+      close = null;
     };
     if (AppState.currentState === 'active' || AppState.currentState === 'unknown') start();
     const sub = AppState.addEventListener('change', (s) => (s === 'active' ? start() : stop()));

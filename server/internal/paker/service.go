@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"log"
 	"sync"
+	"time"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -19,9 +20,14 @@ import (
 type Service struct {
 	pakerv1.UnimplementedPakerServiceServer
 	Store Store
+	// Heartbeat interval for WatchList; keeps proxies from closing idle streams. Zero means the default.
+	Heartbeat time.Duration
 
-	mu sync.Mutex // one list, one writer at a time
+	mu       sync.Mutex // one list, one writer at a time
+	watchers map[chan string]struct{}
 }
+
+const defaultHeartbeat = 25 * time.Second
 
 func (s *Service) GetList(ctx context.Context, _ *pakerv1.GetListRequest) (*pakerv1.GetListResponse, error) {
 	s.mu.Lock()
@@ -54,7 +60,70 @@ func (s *Service) SyncList(ctx context.Context, req *pakerv1.SyncListRequest) (*
 	if err := s.Store.Save(merged); err != nil {
 		return nil, internal("save", err)
 	}
-	return &pakerv1.SyncListResponse{List: merged, Version: Version(merged)}, nil
+	v := Version(merged)
+	if v != Version(base) {
+		s.notify(v)
+	}
+	return &pakerv1.SyncListResponse{List: merged, Version: v}, nil
+}
+
+// WatchList streams the list version: once on connect, after every change, and as a heartbeat.
+func (s *Service) WatchList(_ *pakerv1.WatchListRequest, stream pakerv1.PakerService_WatchListServer) error {
+	ch := make(chan string, 1)
+	s.mu.Lock()
+	if s.watchers == nil {
+		s.watchers = map[chan string]struct{}{}
+	}
+	s.watchers[ch] = struct{}{}
+	list, err := s.Store.Load()
+	s.mu.Unlock()
+	if err != nil {
+		s.unwatch(ch)
+		return internal("load", err)
+	}
+	defer s.unwatch(ch)
+
+	hb := s.Heartbeat
+	if hb == 0 {
+		hb = defaultHeartbeat
+	}
+	ticker := time.NewTicker(hb)
+	defer ticker.Stop()
+
+	current := Version(list)
+	if err := stream.Send(&pakerv1.WatchListResponse{Version: current}); err != nil {
+		return err
+	}
+	for {
+		select {
+		case <-stream.Context().Done():
+			return nil
+		case v := <-ch:
+			current = v
+		case <-ticker.C:
+		}
+		if err := stream.Send(&pakerv1.WatchListResponse{Version: current}); err != nil {
+			return err
+		}
+	}
+}
+
+// notify is called with s.mu held. A watcher that has not consumed its previous value just keeps
+// the newer one (the channel has room for one; the version is all that matters).
+func (s *Service) notify(v string) {
+	for ch := range s.watchers {
+		select {
+		case <-ch:
+		default:
+		}
+		ch <- v
+	}
+}
+
+func (s *Service) unwatch(ch chan string) {
+	s.mu.Lock()
+	delete(s.watchers, ch)
+	s.mu.Unlock()
 }
 
 // Version is a content hash of the list: same list, same version, on every server.

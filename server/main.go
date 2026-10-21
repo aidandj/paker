@@ -21,11 +21,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
-	"google.golang.org/protobuf/encoding/protojson"
 
-	pakerv1 "paker/server/gen/paker/v1"
 	"paker/server/internal/paker"
 )
 
@@ -36,10 +33,12 @@ func main() {
 	}
 	svc := &paker.Service{Store: paker.FileStore{Path: envOr("DATA_FILE", "/data/paker.json")}}
 
-	// gRPC
+	// JSON API (grpc-gateway, with WatchList as SSE) and the gRPC server behind it.
+	gw, grpcServer, err := paker.NewGateway(context.Background(), svc, grpc.UnaryInterceptor(auth.Interceptor), grpc.StreamInterceptor(auth.StreamInterceptor))
+	if err != nil {
+		log.Fatal(err)
+	}
 	if port := envOr("GRPC_PORT", "9090"); port != "" {
-		grpcServer := grpc.NewServer(grpc.UnaryInterceptor(auth.Interceptor))
-		pakerv1.RegisterPakerServiceServer(grpcServer, svc)
 		lis, err := net.Listen("tcp", ":"+port)
 		if err != nil {
 			log.Fatal(err)
@@ -48,14 +47,6 @@ func main() {
 		log.Printf("gRPC on :%s", port)
 	}
 
-	// HTTP: JSON API via grpc-gateway (calls the service directly, no loopback), plus the web app.
-	gw := runtime.NewServeMux(runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
-		MarshalOptions:   protojson.MarshalOptions{EmitUnpopulated: true},
-		UnmarshalOptions: protojson.UnmarshalOptions{DiscardUnknown: true}, // newer apps against an older server
-	}))
-	if err := pakerv1.RegisterPakerServiceHandlerServer(context.Background(), gw, svc); err != nil {
-		log.Fatal(err)
-	}
 	root := http.NewServeMux()
 	root.HandleFunc("GET /api/health", func(w http.ResponseWriter, _ *http.Request) { w.Write([]byte("ok")) })
 	root.Handle("/api/", auth.Middleware(gw))

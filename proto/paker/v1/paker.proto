@@ -66,6 +66,13 @@ message GetListResponse {
   PackingList list = 1;
 }
 
+message WatchListRequest {}
+
+message WatchListResponse {
+  // The current list version; sent on connect, whenever the list changes, and as a heartbeat.
+  string version = 1;
+}
+
 message SyncListRequest {
   // The device's full list.
   PackingList list = 1;
@@ -86,6 +93,11 @@ service PakerService {
   // Cheap poll: the current list version, so a client can tell whether a sync is needed.
   rpc GetListVersion(GetListVersionRequest) returns (GetListVersionResponse) {
     option (google.api.http) = {get: "/api/v1/list:version"};
+  }
+  // Server stream of list versions: an event on connect, one per change, plus a heartbeat every
+  // 25s. Served as Server-Sent Events when the client sends "Accept: text/event-stream".
+  rpc WatchList(WatchListRequest) returns (stream WatchListResponse) {
+    option (google.api.http) = {get: "/api/v1/list:watch"};
   }
   // Merges the device's list into the stored one (newest change per item wins) and returns the result.
   rpc SyncList(SyncListRequest) returns (SyncListResponse) {

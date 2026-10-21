@@ -43,7 +43,10 @@ change is sent to the server (debounced), and the app also syncs on launch and w
 the foreground. The dot next to Sync shows the state: gray off, blue syncing, green synced, red error.
 
 How it works: the app sends its whole list; the server merges it with the stored list and returns
-the result, which the app adopts. Every item and category carries `updatedAt`, and the newer version
+the result, which the app adopts. While the app is open it also keeps a Server-Sent Events stream
+(`GET /api/v1/list:watch` with `Accept: text/event-stream`) that carries the list's version hash on
+connect, on every change and as a 25-second heartbeat; a version other than the last sync's triggers
+a sync, so edits on another device appear within about a second and reconnects cannot miss anything. Every item and category carries `updatedAt`, and the newer version
 wins per entity, so two phones can edit different items at once without losing anything. Deletes are
 tombstones (`deleted: true`, hidden in the UI) so they reach every device. Mode and collapsed state
 are per device and never synced.
@@ -52,9 +55,11 @@ The API is defined in [proto/paker/v1/paker.proto](proto/paker/v1/paker.proto) (
 `google.api.http` annotations). The Go server serves it as gRPC and, through grpc-gateway, as JSON:
 
 ```
-GET  /api/v1/list        current list
-POST /api/v1/list:sync   body {"list": {...}} -> merged list
-GET  /api/health         "ok", no auth
+GET  /api/v1/list          current list
+POST /api/v1/list:sync     body {"list": {...}} -> merged list + version
+GET  /api/v1/list:version  {"version": "<hash>"}
+GET  /api/v1/list:watch    server stream of versions (SSE with Accept: text/event-stream)
+GET  /api/health           "ok", no auth
 ```
 
 Auth is HTTP Basic with the single account from `.env`. The web build of the app is served at `/`.

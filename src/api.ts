@@ -3,7 +3,6 @@
 import { create, fromJson, type JsonValue, toJson } from '@bufbuild/protobuf';
 import {
   GetListResponseSchema,
-  GetListVersionResponseSchema,
   type PackingList as PbPackingList,
   PackingListSchema,
   Status as PbStatus,
@@ -84,10 +83,60 @@ export async function syncList(
   return { list: fromProto(reply.list, list), version: reply.version };
 }
 
-/** Cheap poll: a hash of the server's list. When it differs from the last sync, sync again. */
-export async function getListVersion(config: ServerConfig): Promise<string> {
-  const json = await request(config, '/api/v1/list:version', { method: 'GET' });
-  return fromJson(GetListVersionResponseSchema, json).version;
+/**
+ * Opens the WatchList server stream as Server-Sent Events and reports every version it carries:
+ * one on connect, one per change on the server, and a heartbeat every 25s. Events are state, not a
+ * log: comparing the version with the last sync's is enough, so a dropped connection loses nothing
+ * once reconnected. Uses XMLHttpRequest because React Native's fetch cannot stream a body; the same
+ * code works on the web. Returns a function that closes the stream.
+ */
+export function watchListVersion(
+  config: ServerConfig,
+  onVersion: (version: string) => void,
+  onEnd: (error?: Error) => void,
+): () => void {
+  const xhr = new XMLHttpRequest();
+  xhr.open('GET', config.url.replace(/\/+$/, '') + '/api/v1/list:watch');
+  xhr.setRequestHeader('Accept', 'text/event-stream');
+  xhr.setRequestHeader('Authorization', 'Basic ' + base64(`${config.user}:${config.password}`));
+  let seen = 0;
+  const consume = () => {
+    const text = xhr.responseText ?? '';
+    let end: number;
+    while ((end = text.indexOf('\n\n', seen)) !== -1) {
+      const data = text
+        .slice(seen, end)
+        .split('\n')
+        .filter((l) => l.startsWith('data:'))
+        .map((l) => l.slice(5).trim())
+        .join('\n');
+      seen = end + 2;
+      if (!data) continue;
+      try {
+        const version = (JSON.parse(data) as { result?: { version?: string } }).result?.version;
+        if (typeof version === 'string') onVersion(version);
+      } catch {
+        // ignore malformed event
+      }
+    }
+  };
+  let ended = false;
+  const end = (error?: Error) => {
+    if (ended) return;
+    ended = true;
+    onEnd(error);
+  };
+  xhr.onprogress = consume;
+  xhr.onload = () => {
+    consume();
+    end(xhr.status === 200 ? undefined : new Error(`Server replied ${xhr.status}`));
+  };
+  xhr.onerror = () => end(new Error('Stream failed'));
+  xhr.send();
+  return () => {
+    ended = true;
+    xhr.abort();
+  };
 }
 
 /** Fetch the server's list without sending anything. Used when a device first connects. */
