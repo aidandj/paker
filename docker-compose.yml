@@ -7,7 +7,9 @@ services:
       context: .
       dockerfile: server/Dockerfile
     restart: unless-stopped
-    env_file: .env
+    environment:                       # only these reach the container; PORT below is the host port
+      SYNC_USER: ${SYNC_USER}
+      SYNC_PASSWORD: ${SYNC_PASSWORD}
     ports:
       - "${PORT:-8080}:8080"   # web app at /, JSON API at /api/
       # - "9090:9090"          # gRPC, uncomment if you want it reachable
