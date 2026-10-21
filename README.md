@@ -32,9 +32,11 @@ Tap a category header to collapse it, `+` to add an item, `⋯` for Rename / Alw
 
 Items marked Needs refill are kept through both resets so they are not forgotten.
 
-**Trips** (top right) saves the current list under a name, a snapshot of every item's state and
-quantity, and lists saved trips to Load or Delete. Loading restores the snapshot exactly; items not in
-it become Not packed. Saving with an existing name overwrites that trip. Trips sync like everything else.
+**Trips** (top right) saves the current plan under a name and lists saved trips to Load or Delete.
+There is one base set of items; a trip only records which of them go (anything not "Not packed"
+counts) and how many. Loading sets those to Plan to pack with packed 0, everything else to Not packed,
+and leaves Needs refill items alone. Saving with an existing name overwrites that trip. Trips sync like
+everything else.
 
 Tap the **Paker** title to switch between light and dark mode. The choice is saved; until you choose, the app follows the device setting.
 

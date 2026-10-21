@@ -20,7 +20,11 @@ export function TripsModal({ visible, trips, onSave, onLoad, onDelete, onClose }
         <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
         <View style={styles.card}>
           <Text style={styles.title}>Saved trips</Text>
-          {trips.length === 0 && <Text style={styles.empty}>No saved trips yet.</Text>}
+          <Text style={styles.empty}>
+            {trips.length === 0
+              ? 'No saved trips yet. A trip remembers which items go and how many.'
+              : 'A trip remembers which items go and how many. Saving with an existing name replaces it.'}
+          </Text>
           <ScrollView style={styles.list}>
             {trips.map((t) => (
               <View key={t.id} style={styles.row}>

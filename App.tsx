@@ -241,7 +241,7 @@ function Main() {
         onSave={() => {
           setTripsOpen(false);
           setNameRequest({
-            title: 'Save trip as',
+            title: 'Save plan as trip (an existing name is replaced)',
             onSubmit: (name) => update((l) => m.saveTrip(l, name)),
           });
         }}
@@ -250,7 +250,7 @@ function Main() {
           const trip = list.trips.find((t) => t.id === tripId);
           setChoice({
             title: `Load "${trip?.name}"?`,
-            message: 'Every item gets the state it had when the trip was saved; items not in it become Not packed.',
+            message: 'Items on this trip become "Plan to pack" with their saved counts, everything else "Not packed". Items that need a refill are left as they are.',
             choices: [
               { text: 'Cancel', style: 'cancel' },
               { text: 'Load', onPress: () => update((l) => m.loadTrip(l, tripId)) },

@@ -183,33 +183,35 @@ test('setAllCollapsed folds and unfolds every category', () => {
   assert.ok(m.setAllCollapsed(folded, false).categories.every((c) => !c.collapsed));
 });
 
-test('saveTrip snapshots item states; loadTrip restores them and clears the rest', () => {
+test('a trip is a plan: save captures on-trip items and counts, load restarts packing from it', () => {
   let list = m.addItem(fixture(), 'clothes', 'Shirts', { quantity: true });
   const shirts = list.categories[1].items.at(-1)!.id;
   list = m.adjustNeeded(list, shirts, 2);
+  list = m.adjustPacked(m.setMode(list, 'packing'), shirts, 2); // packed 2/2
   list = m.saveTrip(list, 'Seattle');
-  assert.equal(list.trips.length, 1);
   const trip = list.trips[0];
-  assert.equal(trip.name, 'Seattle');
-  assert.deepEqual(trip.items.find((s) => s.itemId === shirts), { itemId: shirts, status: 'planned', quantity: { needed: 2, packed: 0 } });
+  const byId = (id: string) => trip.items.find((s) => s.itemId === id)!;
+  assert.deepEqual(byId(shirts), { itemId: shirts, status: 'planned', quantity: { needed: 2, packed: 0 } });
+  assert.equal(byId('clothes-shirt').status, 'planned'); // was packed -> on the trip
+  assert.equal(byId('clothes-lotion').status, 'planned'); // was needs_refill -> on the trip
+  assert.equal(byId('clothes-socks').status, 'not_packed');
 
-  // change things, add an item, then load the trip
-  list = m.startNewTrip(list);
+  // wipe the plan, add a new item, then load the trip
+  list = m.startNewTrip(m.setMode(list, 'planning'));
   list = m.addItem(list, 'clothes', 'Hat');
   list = m.tapItem(list, list.categories[1].items.at(-1)!.id); // Hat planned
   list = m.loadTrip(list, trip.id);
-  const byName = (n: string) => list.categories[1].items.find((i) => i.name === n)!;
-  assert.equal(byName('shirt').status, 'packed'); // as in the fixture when saved
-  assert.equal(byName('pants').status, 'planned');
-  assert.deepEqual(byName('Shirts').quantity, { needed: 2, packed: 0 });
-  assert.equal(byName('Hat').status, 'not_packed'); // not in the snapshot
-  assert.equal(list.categories[0].items[2].status, 'needs_refill'); // saved as refill, restored as refill
+  const item = (n: string) => list.categories[1].items.find((i) => i.name === n)!;
+  assert.equal(item('shirt').status, 'planned'); // never "packed" after a load
+  assert.equal(item('pants').status, 'planned');
+  assert.deepEqual(item('Shirts').quantity, { needed: 2, packed: 0 });
+  assert.equal(item('Hat').status, 'not_packed'); // not in the plan
+  assert.equal(item('lotion').status, 'needs_refill'); // refill reminder kept
+  assert.equal(item('socks').status, 'not_packed');
 
-  // saving again with the same name (any case) overwrites, not duplicates
-  list = m.saveTrip(list, 'seattle');
+  list = m.saveTrip(list, 'seattle'); // same name, any case: overwrite
   assert.equal(m.live(list.trips).length, 1);
   assert.equal(list.trips[0].id, trip.id);
-
   list = m.deleteTrip(list, trip.id);
   assert.equal(m.live(list.trips).length, 0);
 });

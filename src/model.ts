@@ -195,11 +195,17 @@ export function startNewTrip(list: PackingList): PackingList {
 }
 
 // --- saved trips ---
+// A trip is a plan laid over the one base set of items: which items go and how many. It never
+// records packing progress, so loading one always starts a fresh packing round.
 
-/** Snapshot the current item states under a name. Saving with an existing name overwrites that trip. */
+/** Save the current plan under a name (anything not "Not packed" is on the trip). Same name overwrites. */
 export function saveTrip(list: PackingList, name: string): PackingList {
   const items: ItemState[] = live(list.categories).flatMap((c) =>
-    live(c.items).map((i) => ({ itemId: i.id, status: i.status, ...(i.quantity ? { quantity: { ...i.quantity } } : {}) })),
+    live(c.items).map((i) => ({
+      itemId: i.id,
+      status: i.status === 'not_packed' ? 'not_packed' : 'planned',
+      ...(i.quantity ? { quantity: { needed: i.quantity.needed, packed: 0 } } : {}),
+    })),
   );
   const existing = live(list.trips).find((t) => t.name.toLowerCase() === name.toLowerCase());
   const trip: SavedTrip = { id: existing?.id ?? newId(), name, updatedAt: now(), items };
@@ -207,19 +213,22 @@ export function saveTrip(list: PackingList, name: string): PackingList {
   return { ...list, trips };
 }
 
-/** Restore a snapshot: items in it get their saved state, every other item becomes "Not packed". */
+/**
+ * Apply a saved plan: items on the trip become "Plan to pack" (packed 0, saved needed count), the
+ * rest "Not packed". Items that need a refill are left alone so the reminder survives.
+ */
 export function loadTrip(list: PackingList, tripId: string): PackingList {
   const trip = list.trips.find((t) => t.id === tripId && !t.deleted);
   if (!trip) return list;
   const saved = new Map(trip.items.map((s) => [s.itemId, s]));
   return mapItems(list, (i) => {
+    if (i.status === 'needs_refill') return i;
     const s = saved.get(i.id);
-    const status: Status = s?.status ?? 'not_packed';
-    const quantity = i.quantity ? { needed: s?.quantity?.needed ?? 0, packed: s?.quantity?.packed ?? 0 } : undefined;
-    const same = i.status === status && JSON.stringify(i.quantity) === JSON.stringify(quantity);
-    if (same) return i;
-    const next = withQuantityFor({ ...i, status, updatedAt: now() });
-    return quantity ? { ...next, quantity } : next;
+    const onTrip = s !== undefined && s.status !== 'not_packed';
+    const status: Status = onTrip ? 'planned' : 'not_packed';
+    const quantity = i.quantity ? { needed: onTrip ? Math.max(1, s?.quantity?.needed ?? 1) : 0, packed: 0 } : undefined;
+    if (i.status === status && JSON.stringify(i.quantity) === JSON.stringify(quantity)) return i;
+    return { ...i, status, ...(quantity ? { quantity } : {}), updatedAt: now() };
   });
 }
 
