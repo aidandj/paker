@@ -1,0 +1,95 @@
+import { useEffect, useState } from 'react';
+import { KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ServerConfig } from '../api';
+import { SyncStatus } from '../sync';
+
+interface Props {
+  visible: boolean;
+  config: ServerConfig | null;
+  status: SyncStatus;
+  error: string | null;
+  onSave: (config: ServerConfig | null) => void;
+  onSyncNow: () => void;
+  onClose: () => void;
+}
+
+const STATUS_TEXT: Record<SyncStatus, string> = {
+  off: 'Not connected. The list is only on this device.',
+  syncing: 'Syncing…',
+  synced: 'Synced.',
+  error: 'Could not reach the server.',
+};
+
+/** Server URL, username and password for sync. Leaving the URL empty turns sync off. */
+export function SettingsModal({ visible, config, status, error, onSave, onSyncNow, onClose }: Props) {
+  const [url, setUrl] = useState('');
+  const [user, setUser] = useState('');
+  const [password, setPassword] = useState('');
+
+  useEffect(() => {
+    if (!visible) return;
+    // On the web build the server is wherever the page came from.
+    const defaultUrl = Platform.OS === 'web' && typeof location !== 'undefined' ? location.origin : '';
+    setUrl(config?.url ?? defaultUrl);
+    setUser(config?.user ?? '');
+    setPassword(config?.password ?? '');
+  }, [visible, config]);
+
+  const save = () => {
+    const u = url.trim();
+    onSave(u ? { url: u, user: user.trim(), password } : null);
+    onClose();
+  };
+
+  return (
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.backdrop}>
+        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+        <View style={styles.card}>
+          <Text style={styles.title}>Sync</Text>
+          <Text style={styles.status}>
+            {STATUS_TEXT[status]}
+            {status === 'error' && error ? ` ${error}` : ''}
+          </Text>
+          <TextInput
+            style={styles.input}
+            value={url}
+            onChangeText={setUrl}
+            placeholder="Server URL, e.g. https://paker.example.com"
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="url"
+          />
+          <TextInput style={styles.input} value={user} onChangeText={setUser} placeholder="Username" autoCapitalize="none" autoCorrect={false} />
+          <TextInput style={styles.input} value={password} onChangeText={setPassword} placeholder="Password" secureTextEntry autoCapitalize="none" autoCorrect={false} />
+          <View style={styles.buttons}>
+            {config && (
+              <Pressable onPress={onSyncNow} style={styles.button}>
+                <Text style={styles.secondary}>Sync now</Text>
+              </Pressable>
+            )}
+            <View style={{ flex: 1 }} />
+            <Pressable onPress={onClose} style={styles.button}>
+              <Text style={styles.secondary}>Cancel</Text>
+            </Pressable>
+            <Pressable onPress={save} style={styles.button}>
+              <Text style={styles.save}>Save</Text>
+            </Pressable>
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+    </Modal>
+  );
+}
+
+const styles = StyleSheet.create({
+  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', padding: 24 },
+  card: { backgroundColor: 'white', borderRadius: 12, padding: 16 },
+  title: { fontSize: 18, fontWeight: '600', marginBottom: 4 },
+  status: { fontSize: 13, color: '#666', marginBottom: 12 },
+  input: { borderWidth: 1, borderColor: '#CCC', borderRadius: 8, padding: 10, fontSize: 16, marginBottom: 8 },
+  buttons: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
+  button: { paddingVertical: 8, paddingHorizontal: 12 },
+  secondary: { fontSize: 16, color: '#666' },
+  save: { fontSize: 16, color: '#2F80ED', fontWeight: '600' },
+});

@@ -1,0 +1,31 @@
+# Run from server/: go generate ./...   (out paths are relative to server/)
+version: v2
+managed:
+  enabled: true
+  override:
+    - file_option: go_package_prefix
+      value: paker/server/gen
+  disable:
+    - file_option: go_package_prefix
+      module: buf.build/googleapis/googleapis
+plugins:
+  # Go: messages, gRPC service, and the HTTP/JSON gateway
+  - remote: buf.build/protocolbuffers/go
+    out: gen
+    opt: paths=source_relative
+  - remote: buf.build/grpc/go
+    out: gen
+    opt: paths=source_relative
+  - remote: buf.build/grpc-ecosystem/gateway
+    out: gen
+    opt:
+      - paths=source_relative
+      - generate_unbound_methods=true
+  # TypeScript: message types only. The *Json types match the gateway's JSON exactly
+  # (int64 as string, enums by name); the app's own fetch call in src/api.ts uses them.
+  - remote: buf.build/bufbuild/es
+    out: ../src/gen
+    include_imports: true
+    opt:
+      - target=ts
+      - json_types=true

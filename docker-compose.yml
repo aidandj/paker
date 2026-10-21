@@ -1,0 +1,16 @@
+services:
+  paker:
+    image: ghcr.io/aidandj/paker:latest   # docker compose pull; or build locally with --build
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "${PORT:-8080}:8080"   # web app at /, JSON API at /api/
+      # - "9090:9090"          # gRPC, uncomment if you want it reachable
+    volumes:
+      - paker-data:/data
+
+volumes:
+  paker-data:

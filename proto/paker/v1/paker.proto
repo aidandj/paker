@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package paker.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "paker/server/gen/paker/v1;pakerv1";
+
+// Status of one item on the packing list.
+enum Status {
+  STATUS_UNSPECIFIED = 0;
+  STATUS_NOT_PACKED = 1;
+  STATUS_PLANNED = 2;
+  STATUS_PACKED = 3;
+  STATUS_NEEDS_REFILL = 4;
+}
+
+message Item {
+  string id = 1;
+  string name = 2;
+  Status status = 3;
+  // Unix milliseconds of the last change to this item. Newer wins on merge.
+  int64 updated_at = 4;
+  // Tombstone: deleted items stay in the list so the delete reaches every device.
+  bool deleted = 5;
+}
+
+message Category {
+  string id = 1;
+  string name = 2;
+  // Items here go to "planned" instead of "not packed" when a new trip starts.
+  bool always_pack = 3;
+  int64 updated_at = 4;
+  bool deleted = 5;
+  repeated Item items = 6;
+}
+
+// The whole packing list. Per-device view state (mode, collapsed) is not part of it.
+message PackingList {
+  repeated Category categories = 1;
+}
+
+message GetListRequest {}
+
+message GetListResponse {
+  PackingList list = 1;
+}
+
+message SyncListRequest {
+  // The device's full list.
+  PackingList list = 1;
+}
+
+message SyncListResponse {
+  // The stored list after merging in the request. The device should replace its copy with this.
+  PackingList list = 1;
+}
+
+service PakerService {
+  // Returns the stored list without changing it.
+  rpc GetList(GetListRequest) returns (GetListResponse) {
+    option (google.api.http) = {get: "/api/v1/list"};
+  }
+  // Merges the device's list into the stored one (newest change per item wins) and returns the result.
+  rpc SyncList(SyncListRequest) returns (SyncListResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/list:sync"
+      body: "*"
+    };
+  }
+}
