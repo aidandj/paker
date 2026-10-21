@@ -1,4 +1,5 @@
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Theme, useStyles } from '../theme';
 
 export interface Choice {
   text: string;
@@ -19,6 +20,7 @@ interface Props {
 
 /** A small dialog with a few buttons. Replaces Alert, which the web build does not implement. */
 export function ChoiceModal({ request, onClose }: Props) {
+  const styles = useStyles(makeStyles);
   return (
     <Modal visible={request !== null} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.backdrop}>
@@ -48,14 +50,14 @@ export function ChoiceModal({ request, onClose }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', padding: 24 },
-  card: { backgroundColor: 'white', borderRadius: 12, padding: 16 },
-  title: { fontSize: 18, fontWeight: '600', marginBottom: 6 },
-  message: { fontSize: 14, color: '#555', marginBottom: 8 },
+const makeStyles = (t: Theme) => StyleSheet.create({
+  backdrop: { flex: 1, backgroundColor: t.backdrop, justifyContent: 'center', padding: 24 },
+  card: { backgroundColor: t.card, borderRadius: 12, padding: 16 },
+  title: { fontSize: 18, fontWeight: '600', marginBottom: 6, color: t.text },
+  message: { fontSize: 14, color: t.muted, marginBottom: 8 },
   buttons: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-end', marginTop: 8 },
   button: { paddingVertical: 10, paddingHorizontal: 14 },
-  text: { fontSize: 16, color: '#2F80ED', fontWeight: '600' },
-  destructive: { color: '#EB5757' },
-  cancel: { color: '#666', fontWeight: '400' },
+  text: { fontSize: 16, color: t.accent, fontWeight: '600' },
+  destructive: { color: t.danger },
+  cancel: { color: t.muted, fontWeight: '400' },
 });

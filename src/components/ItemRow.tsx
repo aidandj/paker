@@ -1,4 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Theme, useStyles } from '../theme';
 import { Item, Mode, Status, STATUS_COLOR, STATUS_LABEL, STATUSES } from '../types';
 
 interface Props {
@@ -24,6 +25,7 @@ interface Props {
  * Tap the status pill to expand all four state buttons plus rename / delete.
  */
 export function ItemRow({ item, mode, expanded, selecting, selected, onTap, onLongPress, onAdjust, onToggleExpand, onSetStatus, onRename, onDelete }: Props) {
+  const styles = useStyles(makeStyles);
   const color = STATUS_COLOR[item.status];
   const q = item.quantity;
   return (
@@ -88,30 +90,30 @@ export function ItemRow({ item, mode, expanded, selecting, selected, onTap, onLo
   );
 }
 
-const styles = StyleSheet.create({
-  wrap: { backgroundColor: 'white', borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#DDD' },
+const makeStyles = (t: Theme) => StyleSheet.create({
+  wrap: { backgroundColor: t.card, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: t.separator },
   row: { flexDirection: 'row', alignItems: 'center', minHeight: 48 },
-  pressed: { backgroundColor: '#F2F2F2' },
-  selected: { backgroundColor: '#E3EEFC' },
-  check: { fontSize: 20, color: '#999', paddingLeft: 12 },
-  checkOn: { color: '#2F80ED' },
+  pressed: { backgroundColor: t.pressed },
+  selected: { backgroundColor: t.selected },
+  check: { fontSize: 20, color: t.faint, paddingLeft: 12 },
+  checkOn: { color: t.accent },
   bar: { width: 6, alignSelf: 'stretch' },
-  name: { flex: 1, fontSize: 16, paddingHorizontal: 12 },
+  name: { flex: 1, fontSize: 16, paddingHorizontal: 12, color: t.text },
   pill: { borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4, marginRight: 12 },
-  star: { color: '#2F80ED', fontSize: 14 },
+  star: { color: t.accent, fontSize: 14 },
   qty: { flexDirection: 'row', alignItems: 'center', marginRight: 8 },
-  qtyButton: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#EEF1F5', alignItems: 'center', justifyContent: 'center' },
-  qtyButtonText: { fontSize: 20, color: '#333', lineHeight: 24 },
-  qtyNum: { fontSize: 16, color: '#999', minWidth: 22, textAlign: 'center' },
-  qtyActive: { color: '#111', fontWeight: '700' },
-  qtySep: { fontSize: 16, color: '#CCC' },
+  qtyButton: { width: 32, height: 32, borderRadius: 16, backgroundColor: t.chip, alignItems: 'center', justifyContent: 'center' },
+  qtyButtonText: { fontSize: 20, color: t.text, lineHeight: 24 },
+  qtyNum: { fontSize: 16, color: t.faint, minWidth: 22, textAlign: 'center' },
+  qtyActive: { color: t.text, fontWeight: '700' },
+  qtySep: { fontSize: 16, color: t.border },
   pillText: { color: 'white', fontSize: 12, fontWeight: '600' },
-  actions: { paddingHorizontal: 12, paddingBottom: 10, backgroundColor: '#FAFAFA' },
+  actions: { paddingHorizontal: 12, paddingBottom: 10, backgroundColor: t.actions },
   statusRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingTop: 8 },
   statusButton: { borderWidth: 2, borderRadius: 8, paddingVertical: 8, paddingHorizontal: 10, minWidth: '47%', alignItems: 'center' },
   statusButtonText: { fontSize: 14, fontWeight: '600' },
   editRow: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 8 },
   editButton: { paddingVertical: 6, paddingHorizontal: 12 },
-  editText: { fontSize: 14, color: '#2F80ED' },
-  deleteText: { color: '#EB5757' },
+  editText: { fontSize: 14, color: t.accent },
+  deleteText: { color: t.danger },
 });

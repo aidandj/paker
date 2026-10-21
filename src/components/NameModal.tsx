@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { Theme, useStyles, useTheme } from '../theme';
 
 export interface ItemSwitches {
   quantity: boolean;
@@ -23,6 +24,8 @@ interface Props {
 export function NameModal({ request, onClose }: Props) {
   const [text, setText] = useState('');
   const [switches, setSwitches] = useState<ItemSwitches>({ quantity: false, alwaysPack: false });
+  const t = useTheme();
+  const styles = useStyles(makeStyles);
 
   useEffect(() => {
     setText(request?.initial ?? '');
@@ -47,6 +50,7 @@ export function NameModal({ request, onClose }: Props) {
             value={text}
             onChangeText={setText}
             placeholder="Name"
+            placeholderTextColor={t.faint}
             autoFocus
             returnKeyType="done"
             onSubmitEditing={submit}
@@ -77,15 +81,15 @@ export function NameModal({ request, onClose }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', padding: 24 },
-  card: { backgroundColor: 'white', borderRadius: 12, padding: 16 },
-  title: { fontSize: 18, fontWeight: '600', marginBottom: 12 },
-  input: { borderWidth: 1, borderColor: '#CCC', borderRadius: 8, padding: 10, fontSize: 16 },
+const makeStyles = (t: Theme) => StyleSheet.create({
+  backdrop: { flex: 1, backgroundColor: t.backdrop, justifyContent: 'center', padding: 24 },
+  card: { backgroundColor: t.card, borderRadius: 12, padding: 16 },
+  title: { fontSize: 18, fontWeight: '600', marginBottom: 12, color: t.text },
+  input: { borderWidth: 1, borderColor: t.border, borderRadius: 8, padding: 10, fontSize: 16, color: t.text },
   switchRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 12 },
-  switchLabel: { fontSize: 15, color: '#333' },
+  switchLabel: { fontSize: 15, color: t.text },
   buttons: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 12 },
   button: { paddingVertical: 8, paddingHorizontal: 16 },
-  cancel: { fontSize: 16, color: '#666' },
-  save: { fontSize: 16, color: '#2F80ED', fontWeight: '600' },
+  cancel: { fontSize: 16, color: t.muted },
+  save: { fontSize: 16, color: t.accent, fontWeight: '600' },
 });

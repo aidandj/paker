@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { ServerConfig } from '../api';
 import { SyncStatus } from '../sync';
+import { Theme, useStyles, useTheme } from '../theme';
 
 interface Props {
   visible: boolean;
@@ -27,6 +28,8 @@ export function SettingsModal({ visible, config, status, error, onSave, onSyncNo
   const [password, setPassword] = useState('');
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const t = useTheme();
+  const styles = useStyles(makeStyles);
 
   useEffect(() => {
     if (!visible) return;
@@ -68,12 +71,13 @@ export function SettingsModal({ visible, config, status, error, onSave, onSyncNo
             value={url}
             onChangeText={setUrl}
             placeholder="Server URL, e.g. https://paker.example.com"
+            placeholderTextColor={t.faint}
             autoCapitalize="none"
             autoCorrect={false}
             keyboardType="url"
           />
-          <TextInput style={styles.input} value={user} onChangeText={setUser} placeholder="Username" autoCapitalize="none" autoCorrect={false} />
-          <TextInput style={styles.input} value={password} onChangeText={setPassword} placeholder="Password" secureTextEntry autoCapitalize="none" autoCorrect={false} />
+          <TextInput style={styles.input} value={user} onChangeText={setUser} placeholder="Username" placeholderTextColor={t.faint} autoCapitalize="none" autoCorrect={false} />
+          <TextInput style={styles.input} value={password} onChangeText={setPassword} placeholder="Password" placeholderTextColor={t.faint} secureTextEntry autoCapitalize="none" autoCorrect={false} />
           <View style={styles.buttons}>
             {config && (
               <Pressable onPress={onSyncNow} style={styles.button}>
@@ -94,16 +98,16 @@ export function SettingsModal({ visible, config, status, error, onSave, onSyncNo
   );
 }
 
-const styles = StyleSheet.create({
-  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', padding: 24 },
-  card: { backgroundColor: 'white', borderRadius: 12, padding: 16 },
-  title: { fontSize: 18, fontWeight: '600', marginBottom: 4 },
-  status: { fontSize: 13, color: '#666', marginBottom: 4 },
-  note: { fontSize: 12, color: '#999', marginBottom: 12 },
-  error: { fontSize: 13, color: '#EB5757', marginBottom: 8 },
-  input: { borderWidth: 1, borderColor: '#CCC', borderRadius: 8, padding: 10, fontSize: 16, marginBottom: 8 },
+const makeStyles = (t: Theme) => StyleSheet.create({
+  backdrop: { flex: 1, backgroundColor: t.backdrop, justifyContent: 'center', padding: 24 },
+  card: { backgroundColor: t.card, borderRadius: 12, padding: 16 },
+  title: { fontSize: 18, fontWeight: '600', marginBottom: 4, color: t.text },
+  status: { fontSize: 13, color: t.muted, marginBottom: 4 },
+  note: { fontSize: 12, color: t.faint, marginBottom: 12 },
+  error: { fontSize: 13, color: t.danger, marginBottom: 8 },
+  input: { borderWidth: 1, borderColor: t.border, borderRadius: 8, padding: 10, fontSize: 16, marginBottom: 8, color: t.text },
   buttons: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
   button: { paddingVertical: 8, paddingHorizontal: 12 },
-  secondary: { fontSize: 16, color: '#666' },
-  save: { fontSize: 16, color: '#2F80ED', fontWeight: '600' },
+  secondary: { fontSize: 16, color: t.muted },
+  save: { fontSize: 16, color: t.accent, fontWeight: '600' },
 });

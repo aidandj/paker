@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { countStatuses, isVisible, live } from '../model';
+import { Theme, useStyles } from '../theme';
 import { Category, Mode, Status } from '../types';
 import { ItemRow } from './ItemRow';
 
@@ -27,6 +28,7 @@ interface Props {
 /** A collapsible category header with its items underneath. In packing mode, categories with nothing to pack are hidden. */
 export function CategorySection(p: Props) {
   const { category, mode } = p;
+  const styles = useStyles(makeStyles);
   const { packed, active } = countStatuses(category);
   const items = live(category.items).filter((i) => isVisible(i, mode));
   if (mode === 'packing' && items.length === 0) return null;
@@ -88,19 +90,19 @@ export function CategorySection(p: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (t: Theme) => StyleSheet.create({
   section: { marginBottom: 12 },
-  header: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#E8ECF2', minHeight: 48 },
+  header: { flexDirection: 'row', alignItems: 'center', backgroundColor: t.header, minHeight: 48 },
   headerMain: { flex: 1, flexDirection: 'row', alignItems: 'center', paddingLeft: 12 },
-  chevron: { fontSize: 16, width: 20, color: '#555' },
-  title: { fontSize: 17, fontWeight: '700', flexShrink: 1 },
-  always: { marginLeft: 8, fontSize: 11, fontWeight: '600', color: '#2F80ED', backgroundColor: '#DCE9FB', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, overflow: 'hidden' },
-  count: { marginLeft: 8, fontSize: 14, color: '#666' },
+  chevron: { fontSize: 16, width: 20, color: t.muted },
+  title: { fontSize: 17, fontWeight: '700', flexShrink: 1, color: t.text },
+  always: { marginLeft: 8, fontSize: 11, fontWeight: '600', color: t.accent, backgroundColor: t.badge, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, overflow: 'hidden' },
+  count: { marginLeft: 8, fontSize: 14, color: t.muted },
   iconButton: { width: 44, height: 48, alignItems: 'center', justifyContent: 'center' },
-  icon: { fontSize: 22, color: '#333' },
-  menu: { flexDirection: 'row', justifyContent: 'flex-end', backgroundColor: '#F2F4F8', paddingHorizontal: 8, paddingVertical: 4 },
+  icon: { fontSize: 22, color: t.text },
+  menu: { flexDirection: 'row', justifyContent: 'flex-end', backgroundColor: t.menu, paddingHorizontal: 8, paddingVertical: 4 },
   menuButton: { paddingVertical: 8, paddingHorizontal: 12 },
-  menuText: { fontSize: 14, color: '#2F80ED', fontWeight: '600' },
-  deleteText: { color: '#EB5757' },
-  empty: { padding: 12, color: '#888', fontStyle: 'italic', backgroundColor: 'white' },
+  menuText: { fontSize: 14, color: t.accent, fontWeight: '600' },
+  deleteText: { color: t.danger },
+  empty: { padding: 12, color: t.faint, fontStyle: 'italic', backgroundColor: t.card },
 });

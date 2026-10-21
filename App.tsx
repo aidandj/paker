@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { CategorySection } from './src/components/CategorySection';
@@ -9,6 +9,7 @@ import { SettingsModal } from './src/components/SettingsModal';
 import * as m from './src/model';
 import { loadList, saveList } from './src/storage';
 import { SyncStatus, useSync } from './src/sync';
+import { Theme, ThemeContext, useStyles, useThemePreference } from './src/theme';
 import { Mode, PackingList } from './src/types';
 
 const SYNC_DOT: Record<SyncStatus, string> = { off: '#BBB', syncing: '#2F80ED', synced: '#27AE60', error: '#EB5757' };
@@ -19,9 +20,12 @@ const MODES: { key: Mode; label: string }[] = [
 ];
 
 export default function App() {
+  const themePref = useThemePreference();
   return (
     <SafeAreaProvider>
-      <Main />
+      <ThemeContext.Provider value={themePref}>
+        <Main />
+      </ThemeContext.Provider>
     </SafeAreaProvider>
   );
 }
@@ -36,6 +40,8 @@ function Main() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const loaded = useRef(false);
   const sync = useSync(list, setList);
+  const { theme, toggle: toggleTheme } = useContext(ThemeContext);
+  const styles = useStyles(makeStyles);
 
   // Load once on start; fall back to starter data on a fresh install.
   useEffect(() => {
@@ -105,9 +111,11 @@ function Main() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
-      <StatusBar style="dark" />
+      <StatusBar style={theme.dark ? 'light' : 'dark'} />
       <View style={styles.topBar}>
-        <Text style={styles.appTitle}>Paker</Text>
+        <Pressable onPress={toggleTheme} hitSlop={6} accessibilityLabel="Toggle dark mode">
+          <Text style={styles.appTitle}>Paker</Text>
+        </Pressable>
         <Pressable onPress={() => update((l) => m.setAllCollapsed(l, true))} style={styles.foldButton} hitSlop={6} accessibilityLabel="Collapse all">
           <Text style={styles.foldText}>▸</Text>
         </Pressable>
@@ -234,27 +242,27 @@ function Main() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#F5F6F8' },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  topBar: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, height: 52, backgroundColor: 'white', borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#CCC' },
-  appTitle: { fontSize: 22, fontWeight: '700', marginRight: 10 },
-  foldButton: { width: 30, height: 30, borderRadius: 15, backgroundColor: '#EEF1F5', alignItems: 'center', justifyContent: 'center', marginRight: 6 },
-  foldText: { fontSize: 15, color: '#555' },
+const makeStyles = (t: Theme) => StyleSheet.create({
+  safe: { flex: 1, backgroundColor: t.bg },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: t.bg },
+  topBar: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, height: 52, backgroundColor: t.card, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: t.border },
+  appTitle: { fontSize: 22, fontWeight: '700', marginRight: 10, color: t.text },
+  foldButton: { width: 30, height: 30, borderRadius: 15, backgroundColor: t.chip, alignItems: 'center', justifyContent: 'center', marginRight: 6 },
+  foldText: { fontSize: 15, color: t.muted },
   topButtons: { flexDirection: 'row' },
   topButton: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8, paddingHorizontal: 12 },
   syncDot: { width: 10, height: 10, borderRadius: 5, marginRight: 6 },
-  topButtonText: { fontSize: 16, color: '#2F80ED', fontWeight: '600' },
-  selectBar: { flexDirection: 'row', alignItems: 'center', margin: 12, marginBottom: 6, borderRadius: 10, backgroundColor: '#E3EEFC', paddingLeft: 12, minHeight: 42 },
-  selectText: { fontSize: 15, fontWeight: '600', color: '#2F80ED' },
-  deleteText: { color: '#EB5757' },
-  modeBar: { flexDirection: 'row', margin: 12, marginBottom: 6, borderRadius: 10, backgroundColor: '#E1E5EC', padding: 3 },
+  topButtonText: { fontSize: 16, color: t.accent, fontWeight: '600' },
+  selectBar: { flexDirection: 'row', alignItems: 'center', margin: 12, marginBottom: 6, borderRadius: 10, backgroundColor: t.selected, paddingLeft: 12, minHeight: 42 },
+  selectText: { fontSize: 15, fontWeight: '600', color: t.accent },
+  deleteText: { color: t.danger },
+  modeBar: { flexDirection: 'row', margin: 12, marginBottom: 6, borderRadius: 10, backgroundColor: t.modeBar, padding: 3 },
   modeButton: { flex: 1, paddingVertical: 8, borderRadius: 8, alignItems: 'center' },
-  modeButtonActive: { backgroundColor: 'white' },
-  modeText: { fontSize: 15, fontWeight: '600', color: '#666' },
-  modeTextActive: { color: '#2F80ED' },
-  hint: { fontSize: 13, color: '#777', textAlign: 'center', marginBottom: 8, paddingHorizontal: 16 },
+  modeButtonActive: { backgroundColor: t.card },
+  modeText: { fontSize: 15, fontWeight: '600', color: t.muted },
+  modeTextActive: { color: t.accent },
+  hint: { fontSize: 13, color: t.faint, textAlign: 'center', marginBottom: 8, paddingHorizontal: 16 },
   content: { paddingBottom: 40 },
-  addCategory: { margin: 16, padding: 14, borderRadius: 10, borderWidth: 2, borderColor: '#2F80ED', borderStyle: 'dashed', alignItems: 'center' },
-  addCategoryText: { fontSize: 16, color: '#2F80ED', fontWeight: '600' },
+  addCategory: { margin: 16, padding: 14, borderRadius: 10, borderWidth: 2, borderColor: t.accent, borderStyle: 'dashed', alignItems: 'center' },
+  addCategoryText: { fontSize: 16, color: t.accent, fontWeight: '600' },
 });

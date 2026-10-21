@@ -32,6 +32,8 @@ Tap a category header to collapse it, `+` to add an item, `⋯` for Rename / Alw
 
 Items marked Needs refill are kept through both resets so they are not forgotten.
 
+Tap the **Paker** title to switch between light and dark mode. The choice is saved; until you choose, the app follows the device setting.
+
 Data is saved on the device. Optionally it syncs through a small self-hosted server (below).
 
 ## Sync
@@ -120,6 +122,7 @@ SideStore if you ever prefer refreshing away from home.
 ```
 App.tsx                      screen: loads/saves the list, wires callbacks
 src/types.ts                 data types, state labels and colors
+src/theme.ts                 light / dark palettes and the hooks components read them through
 src/model.ts                 pure functions that change the list (tested)
 src/model.test.ts            tests for model.ts
 src/storage.ts               local load/save
